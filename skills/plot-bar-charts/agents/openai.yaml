@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plot Bar Charts"
+  short_description: "Create configurable scientific bar charts"
+  default_prompt: "Use $plot-bar-charts to create configurable single or grouped bar charts with error bars and publication-ready styling."

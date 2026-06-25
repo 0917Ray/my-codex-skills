@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plot Training Curves"
+  short_description: "Plot LLM loss and LR training curves"
+  default_prompt: "Use $plot-training-curves to create separate training loss, validation loss, train-vs-validation loss, and learning-rate schedule figures from my logs."
