@@ -38,33 +38,67 @@ The skill also requires generated bar-plot code to expose config controls for ba
 
 ## Examples / 效果示例
 
+Each preview links to the corresponding PDF file.
+
+每张预览图都可以点击打开对应的 PDF 文件。
+
 ### Training Curves / 训练曲线
 
-**(a) Training loss / 训练损失**
-
-![Training loss](assets/examples/sample_llm_training_curves_a_train_loss.png)
-
-**(b) Validation loss / 验证损失**
-
-![Validation loss](assets/examples/sample_llm_training_curves_b_val_loss.png)
-
-**(c) Training vs. validation loss / 训练损失与验证损失对比**
-
-![Training vs validation loss](assets/examples/sample_llm_training_curves_c_train_vs_val_loss.png)
-
-**(d) Learning-rate schedule / 学习率调度**
-
-![Learning-rate schedule](assets/examples/sample_llm_training_curves_d_lr_schedule.png)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_llm_training_curves_a_train_loss.pdf">
+        <img src="assets/examples/sample_llm_training_curves_a_train_loss.png" alt="Training loss" width="100%">
+      </a>
+      <br>
+      <strong>(a) Training loss / 训练损失</strong>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_llm_training_curves_b_val_loss.pdf">
+        <img src="assets/examples/sample_llm_training_curves_b_val_loss.png" alt="Validation loss" width="100%">
+      </a>
+      <br>
+      <strong>(b) Validation loss / 验证损失</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.pdf">
+        <img src="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.png" alt="Training vs validation loss" width="100%">
+      </a>
+      <br>
+      <strong>(c) Training vs. validation loss / 训练损失与验证损失对比</strong>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_llm_training_curves_d_lr_schedule.pdf">
+        <img src="assets/examples/sample_llm_training_curves_d_lr_schedule.png" alt="Learning-rate schedule" width="100%">
+      </a>
+      <br>
+      <strong>(d) Learning-rate schedule / 学习率调度</strong>
+    </td>
+  </tr>
+</table>
 
 ### Bar Charts / 柱状图
 
-**Single highlighted bar chart / 单组高亮柱状图**
-
-![Single bar chart](assets/examples/sample_bar_single.png)
-
-**Grouped bar chart / 分组柱状图**
-
-![Grouped bar chart](assets/examples/sample_bar_grouped.png)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_bar_single.pdf">
+        <img src="assets/examples/sample_bar_single.png" alt="Single highlighted bar chart" width="100%">
+      </a>
+      <br>
+      <strong>Single highlighted bar chart / 单组高亮柱状图</strong>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/examples/sample_bar_grouped.pdf">
+        <img src="assets/examples/sample_bar_grouped.png" alt="Grouped bar chart" width="100%">
+      </a>
+      <br>
+      <strong>Grouped bar chart / 分组柱状图</strong>
+    </td>
+  </tr>
+</table>
 
 ## Installation / 安装
 
