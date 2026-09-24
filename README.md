@@ -6,7 +6,7 @@
   <a href="README.zh-CN.md"><strong>中文</strong></a>
 </p>
 
-This repository contains my custom Codex skills for creating polished, configurable scientific plots.
+This repository contains my custom Codex skills for creating polished, configurable scientific plots and reading English research papers.
 
 ## Skills
 
@@ -31,6 +31,18 @@ Create configurable single and grouped bar charts for scientific comparisons, in
 - Error bars and value labels
 
 The skill also requires generated bar-plot code to expose config controls for bar width, colors, alpha, edge style, error bars, value labels, legend placement, axis settings, and export formats.
+
+### `paper-reading`
+
+Read an attached English research paper and produce an evidence-grounded Chinese explanation for a reader who knows basic machine learning but not the paper's domain. The skill covers:
+
+- STAR summary of the motivation, task, method, and results;
+- exact method reconstruction with equations, symbols, data flow, training, and inference;
+- independent experiment tables for setup, results, and ablations;
+- separation of observations, hypotheses, algorithmic consequences, and experimental support;
+- limitations, inconsistencies, uncertainty, and the boundary of the conclusions.
+
+It requires important claims and numbers to be tied to paper locations when available, and distinguishes direct evidence, author speculation, reasonable inference, and unreported information.
 
 ## Examples
 
@@ -96,13 +108,15 @@ Each preview links to the corresponding PDF file.
 
 ## Installation
 
-Install with Codex's GitHub skill installer:
+Install all three skills with Codex's GitHub skill installer:
 
 ```bash
-python install-skill-from-github.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading
 ```
+
+To install only the paper-reading skill, use `--path skills/paper-reading` in the same command.
 
 Or manually copy the skill folders to your Codex skills directory:
 
@@ -110,9 +124,12 @@ Or manually copy the skill folders to your Codex skills directory:
 mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
+cp -R skills/paper-reading ~/.codex/skills/
 ```
 
 Restart Codex after installation.
+
+Example request: “请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
 
 ## Repository Layout
 
@@ -120,13 +137,14 @@ Restart Codex after installation.
 my-codex-skills/
 ├── skills/
 │   ├── plot-training-curves/
-│   └── plot-bar-charts/
+│   ├── plot-bar-charts/
+│   └── paper-reading/
 └── assets/
     └── examples/
 ```
 
 ## Notes
 
-The bundled scripts require a Python environment with `matplotlib` and `numpy`.
+The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading skill does not include a script.
 
 These skills are intended both as runnable tools and as plotting-code templates. When Codex writes new plotting code using these skills, it should expose a clear config interface rather than hard-coding visual parameters.

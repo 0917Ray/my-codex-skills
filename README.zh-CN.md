@@ -6,7 +6,7 @@
   <a href="README.zh-CN.md"><strong>中文</strong></a>
 </p>
 
-本仓库包含我的自定义 Codex skills，用于绘制风格统一、可配置、适合科研展示的图表。
+本仓库包含我的自定义 Codex skills，用于绘制风格统一、可配置、适合科研展示的图表，以及阅读英文科研论文。
 
 ## Skills 列表
 
@@ -31,6 +31,18 @@
 - 误差条与数值标签
 
 该 skill 同样要求生成的柱状图代码预留 config 控制项，包括柱宽、颜色、透明度、边框、误差条、数值标签、图例位置、坐标轴设置和导出格式。
+
+### `paper-reading`
+
+用于阅读附件中的英文科研论文，并面向具备基础机器学习知识、但不了解论文具体领域的读者，用中文给出有证据依据的分析。该 skill 包括：
+
+- 按 STAR 结构总结背景、任务、方法和结果；
+- 结合公式、符号、数据流、训练流程和推理流程还原方法；
+- 用独立表格整理实验设置、主要结果和消融实验；
+- 区分观察、假设、算法推导和实验支持；
+- 分析局限性、数字或描述不一致、不确定性和结论边界。
+
+它要求关键结论和数字尽可能标注论文中的章节、表格或图号，并区分直接证据、作者推测、合理推断和未报告信息。
 
 ## 效果示例
 
@@ -96,13 +108,15 @@
 
 ## 安装
 
-可以使用 Codex 的 GitHub skill installer 安装：
+可以使用 Codex 内置的 GitHub skill installer 安装全部三个 skills：
 
 ```bash
-python install-skill-from-github.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading
 ```
+
+如果只想安装文献阅读 skill，将同一命令的 `--path` 改为 `skills/paper-reading`。
 
 也可以手动复制 skill 文件夹到 Codex 的 skills 目录：
 
@@ -110,9 +124,12 @@ python install-skill-from-github.py \
 mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
+cp -R skills/paper-reading ~/.codex/skills/
 ```
 
 安装后需要重启 Codex 才能识别新 skills。
+
+使用示例：“请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
 
 ## 仓库结构
 
@@ -120,13 +137,14 @@ cp -R skills/plot-bar-charts ~/.codex/skills/
 my-codex-skills/
 ├── skills/
 │   ├── plot-training-curves/
-│   └── plot-bar-charts/
+│   ├── plot-bar-charts/
+│   └── paper-reading/
 └── assets/
     └── examples/
 ```
 
 ## 说明
 
-脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。
+绘图脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。文献阅读 skill 不附带脚本。
 
 这些 skills 既可以作为可运行工具，也可以作为绘图代码模板。Codex 使用这些 skills 编写新绘图代码时，应提供清晰的 config 接口，而不是把视觉参数硬编码在绘图语句中。
