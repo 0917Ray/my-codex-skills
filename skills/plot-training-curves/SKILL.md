@@ -34,7 +34,7 @@ python scripts/plot_training_curves.py trainer_state.json --mode train-vs-val --
 python scripts/plot_training_curves.py metrics.csv --mode lr-schedule --output lr_schedule.png
 ```
 
-Use `--spine-width 3.0` to set the frame thickness explicitly; the default is `3.0 pt`.
+Use `--spine-width 2.5` to set the frame thickness explicitly; the default is `2.5 pt`.
 
 In `all-separate` mode, `--output training_curves.png` is treated as a prefix and creates:
 
@@ -61,7 +61,7 @@ Use the bundled visual style unless the user requests a different house style:
 - Use semantic default colors: training loss green, validation/eval loss red, and learning-rate schedule blue. Use the remaining low-saturation palette colors only for additional series.
 - Use slightly transparent main lines rather than fully opaque strokes; the default script uses RGBA line alpha around `0.92` and line width around `1.65`.
 - Draw markers with semi-transparent fills and near-solid edges: keep `marker_face_alpha` around `0.6`, `marker_edge_alpha` around `0.95`, and `marker_edge_width` around `1.35`.
-- Keep the complete axes frame visible and set its default spine width to `3.0 pt`, using dark neutral axes color. Keep marker edges around `1.35 pt` so they remain subordinate to the stronger frame; preserve config overrides.
+- Keep the complete axes frame visible and set its default spine width to `2.5 pt`, using dark neutral axes color. Keep marker edges around `1.35 pt` so they remain subordinate to the stronger frame; preserve config overrides.
 - Transparent background, high-DPI PNG, and vector-friendly PDF/SVG font settings.
 - Smart major/minor ticks with subtle dashed grids.
 - Sparse markers on long curves so dense training logs remain readable.

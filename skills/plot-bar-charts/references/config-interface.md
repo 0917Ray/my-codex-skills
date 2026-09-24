@@ -129,7 +129,7 @@ For command-line scripts, support `--config path.json` or `--config path.yaml` w
 - `grid.major_alpha`, `grid.minor_alpha`.
 - `spines.top`, `spines.right`, `spines.bottom`, `spines.left`.
 - `spines.color`.
-- `spines.linewidth`: default `3.0 pt` for a complete, visible frame.
+- `spines.linewidth`: default `2.5 pt` for a complete, visible frame.
 
 ### Fonts, Titles, And Labels
 
@@ -230,7 +230,7 @@ DEFAULT_CONFIG = {
         "right": True,
         "bottom": True,
         "left": True,
-        "linewidth": 3.0,
+        "linewidth": 2.5,
     },
 }
 ```
