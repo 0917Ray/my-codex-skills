@@ -59,7 +59,7 @@ Use `--x step` or `--x epoch` when the automatic x-axis choice is not what the u
 Use the bundled visual style unless the user requests a different house style:
 
 - Use semantic default colors: training loss green, validation/eval loss red, and learning-rate schedule blue. Use the remaining low-saturation palette colors only for additional series.
-- Use slightly transparent main lines rather than fully opaque strokes; the default script uses RGBA line alpha around `0.92` and line width around `1.65`.
+- Use slightly transparent main lines rather than fully opaque strokes; the default script uses RGBA line alpha around `0.92` and line width around `2.0 pt`, which stays slightly lighter than the `2.5 pt` axes frame.
 - Draw markers with semi-transparent fills and near-solid edges: keep `marker_face_alpha` around `0.6`, `marker_edge_alpha` around `0.95`, and `marker_edge_width` around `1.35`.
 - Keep the complete axes frame visible and set its default spine width to `2.5 pt`, using dark neutral axes color. Keep marker edges around `1.35 pt` so they remain subordinate to the stronger frame; preserve config overrides.
 - Transparent background, high-DPI PNG, and vector-friendly PDF/SVG font settings.

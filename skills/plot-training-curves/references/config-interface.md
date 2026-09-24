@@ -212,7 +212,7 @@ DEFAULT_CONFIG = {
             "label": "Training loss",
             "color": "#4F7C65",
             "linestyle": "-",
-            "linewidth": 1.65,
+            "linewidth": 2.0,
             "line_alpha": 0.92,
             "marker": "s",
             "marker_face_alpha": 0.6,

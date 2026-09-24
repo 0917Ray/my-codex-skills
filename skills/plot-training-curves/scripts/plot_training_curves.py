@@ -109,7 +109,7 @@ def set_line_plot_style(
     label_size: float = 12,
     tick_size: float = 11,
     legend_size: float = 10.5,
-    line_width: float = 1.65,
+    line_width: float = 2.0,
     figure_size: tuple[float, float] = (7.2, 4.6),
     spine_width: float = 2.5,
 ) -> None:
