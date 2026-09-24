@@ -98,7 +98,7 @@ Each series block must support:
 - `include_endpoints`: whether markers must include first/last point.
 - `marker_face_alpha`: fill alpha, default around `0.6`.
 - `marker_edge_alpha`: edge alpha, default around `0.95`.
-- `marker_edge_width`: edge width, default around `1.2`.
+- `marker_edge_width`: edge width, default around `1.35`.
 - `zorder`: draw order.
 
 Default semantic colors:
@@ -133,7 +133,7 @@ Default semantic colors:
 - `grid.major_alpha`, `grid.minor_alpha`.
 - `spines.top`, `spines.right`, `spines.bottom`, `spines.left`: visibility.
 - `spines.color`.
-- `spines.linewidth`.
+- `spines.linewidth`: default around `1.45 pt` for a complete, visible frame.
 
 ### Legends
 
@@ -217,7 +217,7 @@ DEFAULT_CONFIG = {
             "marker": "s",
             "marker_face_alpha": 0.6,
             "marker_edge_alpha": 0.95,
-            "marker_edge_width": 1.2,
+            "marker_edge_width": 1.35,
         },
         "val_loss": {
             "label": "Validation loss",
@@ -236,6 +236,13 @@ DEFAULT_CONFIG = {
         "bbox_to_anchor": None,
         "ncol": 1,
         "frameon": False,
+    },
+    "spines": {
+        "top": True,
+        "right": True,
+        "bottom": True,
+        "left": True,
+        "linewidth": 1.45,
     },
 }
 ```

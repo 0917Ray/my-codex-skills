@@ -70,7 +70,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "group_width": 0.74,
         "face_alpha": 0.5,
         "edge_alpha": 0.95,
-        "edge_width": 1.65,
+        "edge_width": 2.0,
         "color_mode": "highlight",
         "highlight_color": "#A75B73",
         "palette": [
@@ -112,7 +112,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "spines": {
         "top": True,
         "right": True,
-        "linewidth": 1.05,
+        "linewidth": 1.45,
     },
     "value_labels": {
         "enabled": True,
@@ -246,6 +246,8 @@ def set_style(config: dict[str, Any], figure_size: list[float]) -> None:
             "axes.axisbelow": True,
             "axes.spines.top": spines["top"],
             "axes.spines.right": spines["right"],
+            "axes.spines.bottom": True,
+            "axes.spines.left": True,
             "xtick.labelsize": font["tick_size"],
             "ytick.labelsize": font["tick_size"],
             "xtick.color": c["axis"],
@@ -256,9 +258,9 @@ def set_style(config: dict[str, Any], figure_size: list[float]) -> None:
             "ytick.right": True,
             "xtick.major.size": 0,
             "ytick.major.size": 4.2,
-            "ytick.major.width": 1.0,
+            "ytick.major.width": 1.1,
             "ytick.minor.size": 2.2,
-            "ytick.minor.width": 0.75,
+            "ytick.minor.width": 0.8,
             "legend.fontsize": font["legend_size"],
             "legend.frameon": config["legend"]["frameon"],
             "legend.handlelength": 1.4,

@@ -1,11 +1,17 @@
 ---
 name: paper-reading
-description: Read attached English research papers and produce an evidence-grounded Chinese explanation for readers who know basic machine learning but not the paper's domain. Use when the user asks for a full paper summary, method walkthrough, experiment audit, or limitations analysis; do not use for an abstract-only paraphrase or a bibliography-only task.
+description: Read attached English research papers and save an evidence-grounded Chinese explanation as a Markdown (.md) file for readers who know basic machine learning but not the paper's domain. Use when the user asks for a full paper summary, method walkthrough, experiment audit, or limitations analysis; do not use for an abstract-only paraphrase or a bibliography-only task.
 ---
 
 # English Paper Reading
 
 Use this skill to turn an English research paper into a Chinese explanation that lets the reader understand what the paper does, why it was proposed, how it is implemented, and whether the experiments support the claims.
+
+## Deliverable and math syntax
+
+- Write the complete six-part analysis to a UTF-8 `.md` file. Use the user's requested path when given; otherwise choose a descriptive paper-based filename in the current task's deliverables directory and link the saved file in the reply. For multiple papers, use a separate `.md` file for each unless the user requests a combined review.
+- Use `$...$` for inline mathematics, such as `$\mathcal{L}_{\mathrm{total}}$`, and `$$...$$` for display mathematics, with each `$$` on its own line. Do not use `\(...\)` or `\[...\]` as math delimiters anywhere in the delivered Markdown.
+- Keep display equations outside Markdown tables and code fences so Markdown math renderers can interpret them. Keep the paper's own equation numbering in the surrounding text when relevant.
 
 ## Core standard: evidence before fluency
 
@@ -30,7 +36,7 @@ Use this skill to turn an English research paper into a Chinese explanation that
 4. **Reconstruct the method.** Follow the data from input to output. Transcribe only equations that appear in the paper, define every symbol, state the optimization target, and connect each loss or module to the problem it addresses. Keep training and inference separate.
 5. **Audit the experiments.** Extract datasets, scale, splits, domains/classes, model and training settings, metrics and their direction, baselines, seeds or standard deviations, ablations, oracle/upper-bound settings, and qualitative results. Check whether the comparison is fair and whether the reported experiment tests the stated hypothesis.
 6. **Test the conclusion boundary.** Compare each conclusion with its evidence. Identify assumptions, failure cases, computational cost, sensitivity, missing controls, and what the experimental coverage cannot establish.
-7. **Write in the required structure below.** Put uncertainty next to the affected statement rather than hiding it in a generic disclaimer.
+7. **Write the `.md` file in the required structure below.** Put uncertainty next to the affected statement rather than hiding it in a generic disclaimer. Check the saved file's math delimiters before handing it over.
 
 ## Method reconstruction rules
 
@@ -74,7 +80,7 @@ State the specific problem, the bottleneck in existing approaches, the paper's a
 
 #### A - Action
 
-Walk through the complete method and data flow. Preserve core equations in LaTeX, define symbols, explain each objective and module, and distinguish training from inference. Explicitly mark details as `未报告` or `基于图/伪代码的推断` when necessary.
+Walk through the complete method and data flow. Preserve core equations using `$...$` and `$$...$$` in the Markdown file, define symbols, explain each objective and module, and distinguish training from inference. Explicitly mark details as `未报告` or `基于图/伪代码的推断` when necessary.
 
 #### R - Result
 
@@ -132,3 +138,4 @@ Before finishing, verify that:
 - claims are tagged when they are author speculation, reasonable inference, or direct experimental support;
 - discrepancies across sections are called out;
 - the limitations section states what the experiments cannot establish.
+- the complete answer was saved as a `.md` file, display math uses standalone `$$` delimiters, and no `\(...\)` or `\[...\]` math delimiters remain.

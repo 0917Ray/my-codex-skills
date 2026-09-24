@@ -66,7 +66,7 @@ For command-line scripts, support `--config path.json` or `--config path.yaml` w
 - `group_gap`: spacing between groups when manually positioned.
 - `face_alpha`: default around `0.5`.
 - `edge_alpha`: default around `0.95`.
-- `edge_width`: default around `1.65`.
+- `edge_width`: default around `2.0 pt`.
 - `bar_zorder`.
 - `color_mode`: palette, highlight, semantic, manual.
 - `palette`: ordered color list.
@@ -129,7 +129,7 @@ For command-line scripts, support `--config path.json` or `--config path.yaml` w
 - `grid.major_alpha`, `grid.minor_alpha`.
 - `spines.top`, `spines.right`, `spines.bottom`, `spines.left`.
 - `spines.color`.
-- `spines.linewidth`.
+- `spines.linewidth`: default around `1.45 pt` for a complete, visible frame.
 
 ### Fonts, Titles, And Labels
 
@@ -199,7 +199,7 @@ DEFAULT_CONFIG = {
         "group_width": 0.74,
         "face_alpha": 0.5,
         "edge_alpha": 0.95,
-        "edge_width": 1.65,
+        "edge_width": 2.0,
         "highlight_color": "#A75B73",
         "non_highlight_face_color": "#C9CED3",
         "non_highlight_edge_color": "#AEB5BC",
@@ -224,6 +224,13 @@ DEFAULT_CONFIG = {
         "loc": "best",
         "frameon": False,
         "ncol": 1,
+    },
+    "spines": {
+        "top": True,
+        "right": True,
+        "bottom": True,
+        "left": True,
+        "linewidth": 1.45,
     },
 }
 ```

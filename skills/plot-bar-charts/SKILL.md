@@ -61,7 +61,8 @@ Use the bundled visual style unless the user requests a different house style:
 - Use low-saturation scientific colors with transparent bar fills and near-solid edges.
 - Default single highlighted bars should render non-highlight bars in neutral gray and the highlighted bar in red.
 - Default grouped bars should use blue, green, red, purple, cyan, orange, olive, then brown.
-- Use `face_alpha` around `0.5`, `edge_alpha` around `0.95`, and `edge_width` around `1.65`.
+- Use `face_alpha` around `0.5`, `edge_alpha` around `0.95`, and bar `edge_width` around `2.0 pt`.
+- Keep the complete axes frame visible and set its default spine width around `1.45 pt` in a dark neutral color; keep bar edge and frame widths configurable.
 - Use restrained error bars with dark neutral color, narrow caps, and moderate alpha.
 - Put value labels above bars only when they improve readability; reserve vertical space so labels do not clip.
 - Use subtle dashed y-axis grid lines; do not draw x-axis grid lines by default.

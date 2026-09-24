@@ -111,6 +111,7 @@ def set_line_plot_style(
     legend_size: float = 10.5,
     line_width: float = 1.65,
     figure_size: tuple[float, float] = (7.2, 4.6),
+    spine_width: float = 1.45,
 ) -> None:
     c = colors()
     n = neutrals()
@@ -149,11 +150,11 @@ def set_line_plot_style(
             ),
             "lines.linewidth": line_width,
             "lines.markersize": 5.0,
-            "lines.markeredgewidth": 1.0,
+            "lines.markeredgewidth": 1.35,
             "lines.solid_capstyle": "round",
             "lines.solid_joinstyle": "round",
             "lines.antialiased": True,
-            "axes.linewidth": 1.05,
+            "axes.linewidth": spine_width,
             "axes.edgecolor": n["axis"],
             "axes.labelcolor": n["dark"],
             "axes.titlecolor": n["dark"],
@@ -163,6 +164,8 @@ def set_line_plot_style(
             "axes.axisbelow": True,
             "axes.spines.top": True,
             "axes.spines.right": True,
+            "axes.spines.bottom": True,
+            "axes.spines.left": True,
             "xtick.labelsize": tick_size,
             "ytick.labelsize": tick_size,
             "xtick.color": n["axis"],
@@ -173,12 +176,12 @@ def set_line_plot_style(
             "ytick.right": True,
             "xtick.major.size": 4.2,
             "ytick.major.size": 4.2,
-            "xtick.major.width": 1.0,
-            "ytick.major.width": 1.0,
+            "xtick.major.width": 1.1,
+            "ytick.major.width": 1.1,
             "xtick.minor.size": 2.2,
             "ytick.minor.size": 2.2,
-            "xtick.minor.width": 0.75,
-            "ytick.minor.width": 0.75,
+            "xtick.minor.width": 0.8,
+            "ytick.minor.width": 0.8,
             "axes.grid": True,
             "grid.color": n["grid"],
             "grid.linestyle": "--",
@@ -253,7 +256,7 @@ def plot_line_with_auto_marker(
     target_markers: int = 9,
     include_endpoints: bool = False,
     marker_size: float = 5,
-    marker_edge_width: float = 1.2,
+    marker_edge_width: float = 1.35,
     marker_face_alpha: float = 0.6,
     marker_edge_alpha: float = 0.95,
     zorder: int = 3,
@@ -548,7 +551,7 @@ def plot_loss_series(
         target_markers=10 if validation else 9,
         include_endpoints=validation,
         marker_size=5.2 if validation else 5.0,
-        marker_edge_width=1.2,
+        marker_edge_width=1.35,
         marker_face_alpha=0.6,
         marker_edge_alpha=0.95,
         line_alpha=0.92,
@@ -568,7 +571,7 @@ def plot_lr_series(ax: plt.Axes, series: Series, label: str = "Learning rate") -
         target_markers=9,
         include_endpoints=False,
         marker_size=4.8,
-        marker_edge_width=1.2,
+        marker_edge_width=1.35,
         marker_face_alpha=0.6,
         marker_edge_alpha=0.95,
         line_alpha=0.92,
@@ -596,8 +599,9 @@ def render_single_axis(
     smooth: int,
     title: str | None,
     show_legend: bool,
+    spine_width: float = 1.45,
 ) -> plt.Figure:
-    set_line_plot_style()
+    set_line_plot_style(spine_width=spine_width)
     fig, ax = plt.subplots()
 
     active: list[Series | None] = []
@@ -660,12 +664,13 @@ def render_loss_lr_panels(
     smooth: int,
     title: str | None,
     show_legend: bool,
+    spine_width: float = 1.45,
 ) -> plt.Figure:
     lr = require_series(lr, "learning rate")
     if train is None and val is None:
         raise ValueError("Could not find training or validation loss for panel plot.")
 
-    set_line_plot_style(figure_size=(7.4, 5.8))
+    set_line_plot_style(figure_size=(7.4, 5.8), spine_width=spine_width)
     fig, axes = plt.subplots(2, 1, sharex=True, gridspec_kw={"height_ratios": [2.1, 1]})
     loss_ax, lr_ax = axes
 
@@ -759,6 +764,7 @@ def save_separate_figures(
     output: Path,
     pdf: bool,
     show_legend: bool,
+    spine_width: float = 1.45,
 ) -> list[Path]:
     stem = output_stem(output)
     jobs = [
@@ -769,7 +775,9 @@ def save_separate_figures(
     ]
     saved: list[Path] = []
     for mode, suffix, title in jobs:
-        fig = render_single_axis(mode, train, val, lr, smooth, title, show_legend)
+        fig = render_single_axis(
+            mode, train, val, lr, smooth, title, show_legend, spine_width
+        )
         saved.extend(save_figure(fig, stem.with_name(f"{stem.name}_{suffix}.png"), pdf))
         plt.close(fig)
     return saved
@@ -813,12 +821,18 @@ def parse_args() -> argparse.Namespace:
         help="Output file path. For all-separate mode, this is used as the filename prefix.",
     )
     parser.add_argument("--pdf", action="store_true", help="Also save a companion PDF.")
+    parser.add_argument(
+        "--spine-width", type=float, default=1.45,
+        help="Thickness in points of the four sides of the axes frame (default: 1.45).",
+    )
     parser.add_argument("--no-legend", action="store_true", help="Hide the legend.")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    if args.spine_width <= 0:
+        raise ValueError("--spine-width must be positive.")
     records = load_records(args.input)
     if not records:
         raise ValueError(f"No records found in {args.input}")
@@ -833,13 +847,19 @@ def main() -> None:
 
     if mode == "all-separate":
         saved = save_separate_figures(
-            train, val, lr, args.smooth, args.output, args.pdf, show_legend
+            train, val, lr, args.smooth, args.output, args.pdf,
+            show_legend, args.spine_width,
         )
     elif mode == "loss-and-lr-panels":
-        fig = render_loss_lr_panels(train, val, lr, args.smooth, args.title, show_legend)
+        fig = render_loss_lr_panels(
+            train, val, lr, args.smooth, args.title, show_legend, args.spine_width
+        )
         saved = save_figure(fig, args.output, args.pdf)
     else:
-        fig = render_single_axis(mode, train, val, lr, args.smooth, args.title, show_legend)
+        fig = render_single_axis(
+            mode, train, val, lr, args.smooth, args.title, show_legend,
+            args.spine_width,
+        )
         saved = save_figure(fig, args.output, args.pdf)
 
     for path in saved:
