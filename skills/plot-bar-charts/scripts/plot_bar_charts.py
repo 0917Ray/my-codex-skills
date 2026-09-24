@@ -112,7 +112,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "spines": {
         "top": True,
         "right": True,
-        "linewidth": 1.45,
+        "linewidth": 3.0,
     },
     "value_labels": {
         "enabled": True,

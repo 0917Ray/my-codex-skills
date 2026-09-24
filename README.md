@@ -20,7 +20,7 @@ Create configurable line plots for LLM and machine-learning training logs, inclu
 - Learning-rate schedule
 
 The skill emphasizes reusable plotting code with explicit config interfaces for figure size, colors, line styles, alpha, markers, titles, labels, legends, ticks, grids, and export settings.
-Its default plots use a complete `1.45 pt` axes frame and slightly stronger marker edges.
+Its default plots use a complete `3.0 pt` axes frame and slightly stronger marker edges.
 
 ### `plot-bar-charts`
 
@@ -32,7 +32,7 @@ Create configurable single and grouped bar charts for scientific comparisons, in
 - Error bars and value labels
 
 The skill also requires generated bar-plot code to expose config controls for bar width, colors, alpha, edge style, error bars, value labels, legend placement, axis settings, and export formats.
-Its default plots use a complete `1.45 pt` axes frame and `2.0 pt` bar outlines.
+Its default plots use a complete `3.0 pt` axes frame and `2.0 pt` bar outlines.
 
 ### `paper-reading`
 

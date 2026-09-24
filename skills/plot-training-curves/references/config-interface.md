@@ -133,7 +133,7 @@ Default semantic colors:
 - `grid.major_alpha`, `grid.minor_alpha`.
 - `spines.top`, `spines.right`, `spines.bottom`, `spines.left`: visibility.
 - `spines.color`.
-- `spines.linewidth`: default around `1.45 pt` for a complete, visible frame.
+- `spines.linewidth`: default `3.0 pt` for a complete, visible frame.
 
 ### Legends
 
@@ -242,7 +242,7 @@ DEFAULT_CONFIG = {
         "right": True,
         "bottom": True,
         "left": True,
-        "linewidth": 1.45,
+        "linewidth": 3.0,
     },
 }
 ```

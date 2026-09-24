@@ -111,7 +111,7 @@ def set_line_plot_style(
     legend_size: float = 10.5,
     line_width: float = 1.65,
     figure_size: tuple[float, float] = (7.2, 4.6),
-    spine_width: float = 1.45,
+    spine_width: float = 3.0,
 ) -> None:
     c = colors()
     n = neutrals()
@@ -599,7 +599,7 @@ def render_single_axis(
     smooth: int,
     title: str | None,
     show_legend: bool,
-    spine_width: float = 1.45,
+    spine_width: float = 3.0,
 ) -> plt.Figure:
     set_line_plot_style(spine_width=spine_width)
     fig, ax = plt.subplots()
@@ -664,7 +664,7 @@ def render_loss_lr_panels(
     smooth: int,
     title: str | None,
     show_legend: bool,
-    spine_width: float = 1.45,
+    spine_width: float = 3.0,
 ) -> plt.Figure:
     lr = require_series(lr, "learning rate")
     if train is None and val is None:
@@ -764,7 +764,7 @@ def save_separate_figures(
     output: Path,
     pdf: bool,
     show_legend: bool,
-    spine_width: float = 1.45,
+    spine_width: float = 3.0,
 ) -> list[Path]:
     stem = output_stem(output)
     jobs = [
@@ -822,8 +822,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--pdf", action="store_true", help="Also save a companion PDF.")
     parser.add_argument(
-        "--spine-width", type=float, default=1.45,
-        help="Thickness in points of the four sides of the axes frame (default: 1.45).",
+        "--spine-width", type=float, default=3.0,
+        help="Thickness in points of the four sides of the axes frame (default: 3.0).",
     )
     parser.add_argument("--no-legend", action="store_true", help="Hide the legend.")
     return parser.parse_args()
