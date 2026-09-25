@@ -112,6 +112,29 @@ The preview values are illustrative synthetic data. Regenerate all previews with
   </tr>
 </table>
 
+### Paper-layout mockup
+
+The repository also includes a two-page paper-layout preview that embeds the
+same vector PDFs in a realistic two-column manuscript. It demonstrates a
+single-column two-panel figure, a full-width four-panel `figure*`, subfigure
+labels, captions, body-text references, and the final-size relationship between
+plots and surrounding content.
+
+<p align="center">
+  <a href="assets/examples/paper_layout/paper_layout_demo.pdf">
+    <img src="assets/examples/paper_layout/paper_layout_page-01.png" alt="Paper layout preview, page 1" width="48%">
+  </a>
+  <a href="assets/examples/paper_layout/paper_layout_demo.pdf">
+    <img src="assets/examples/paper_layout/paper_layout_page-02.png" alt="Paper layout preview, page 2" width="48%">
+  </a>
+</p>
+
+The source is [`assets/examples/paper_layout/paper_layout_demo.tex`](assets/examples/paper_layout/paper_layout_demo.tex). From that directory, rerun it with:
+
+```bash
+latexmk -pdf paper_layout_demo.tex
+```
+
 ## Installation
 
 Install all three skills with Codex's GitHub skill installer:
@@ -147,6 +170,8 @@ my-codex-skills/
 │   └── paper-reading/
 └── assets/
     └── examples/
+        └── paper_layout/
+            └── paper_layout_demo.tex
 ```
 
 ## Notes

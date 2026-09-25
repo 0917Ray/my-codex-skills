@@ -1,0 +1,13 @@
+dataset,method,accuracy,std
+Cora,Baseline A,78.4,0.6
+Cora,Baseline B,79.2,0.5
+Cora,Ours,82.1,0.4
+Citeseer,Baseline A,70.1,0.7
+Citeseer,Baseline B,71.5,0.6
+Citeseer,Ours,74.3,0.5
+PubMed,Baseline A,80.6,0.5
+PubMed,Baseline B,81.0,0.5
+PubMed,Ours,83.2,0.4
+Arxiv,Baseline A,67.8,0.8
+Arxiv,Baseline B,69.1,0.7
+Arxiv,Ours,72.0,0.6

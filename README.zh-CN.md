@@ -112,6 +112,25 @@
   </tr>
 </table>
 
+### 论文排版示例
+
+仓库还包含一个两页的论文排版预览：把同一批矢量 PDF 图真正嵌入双栏论文页面，展示单栏两子图、跨双栏的 `figure*` 四子图、子图标签、图注、正文引用，以及图在最终论文尺寸下与周围内容的关系。
+
+<p align="center">
+  <a href="assets/examples/paper_layout/paper_layout_demo.pdf">
+    <img src="assets/examples/paper_layout/paper_layout_page-01.png" alt="论文排版预览第 1 页" width="48%">
+  </a>
+  <a href="assets/examples/paper_layout/paper_layout_demo.pdf">
+    <img src="assets/examples/paper_layout/paper_layout_page-02.png" alt="论文排版预览第 2 页" width="48%">
+  </a>
+</p>
+
+源文件位于 [`assets/examples/paper_layout/paper_layout_demo.tex`](assets/examples/paper_layout/paper_layout_demo.tex)。进入该目录后可以运行以下命令重新编译：
+
+```bash
+latexmk -pdf paper_layout_demo.tex
+```
+
 ## 安装
 
 可以使用 Codex 内置的 GitHub skill installer 安装全部三个 skills：
@@ -147,6 +166,8 @@ my-codex-skills/
 │   └── paper-reading/
 └── assets/
     └── examples/
+        └── paper_layout/
+            └── paper_layout_demo.tex
 ```
 
 ## 说明
