@@ -38,6 +38,44 @@ Use this skill to turn an English research paper into a Chinese explanation that
 6. **Test the conclusion boundary.** Compare each conclusion with its evidence. Identify assumptions, failure cases, computational cost, sensitivity, missing controls, and what the experimental coverage cannot establish.
 7. **Write the `.md` file in the required structure below.** Put uncertainty next to the affected statement rather than hiding it in a generic disclaimer. Check the saved file's math delimiters before handing it over.
 
+## Conversation follow-up and document revision
+
+After the initial `.md` analysis is delivered, keep track of the user's
+questions and the answers given during the same paper-reading conversation.
+When the user clearly signals that the discussion is finished, such as “好的，
+对话结束”, “就到这里”, or an equivalent request to close the discussion,
+perform a final document revision before replying:
+
+1. Review the full conversation after the original `.md` was written. Extract
+   only questions, clarifications, corrections, and explanations that improve
+   the reader's understanding of the paper.
+2. For details that belong to an existing topic, revise the relevant section
+   or table in place. Prefer a precise addition near the statement it explains
+   over repeating the entire conversation.
+3. For paper-relevant material that does not fit the six required sections,
+   append a section titled `### 7. 多轮对话补充` after the existing conclusion. Group
+   related questions, state the clarified answer, and include the paper
+   locator and evidence-status label when applicable.
+4. Do not add conversational pleasantries, questions that were abandoned, or
+   information unrelated to understanding or evaluating the paper. Do not
+   silently overwrite a prior claim: if the dialogue exposes an error or a
+   disagreement, correct it explicitly and identify the reason and source.
+5. Preserve the evidence boundary. A response generated during discussion is
+   not evidence by itself; label it as `作者明确陈述`, `实验直接支持`,
+   `作者推测`, `基于实验的合理推断`, or `未报告/无法核实` as appropriate,
+   and cite the paper section, equation, table, figure, appendix, or page when
+   available. If the conversation introduced a useful interpretation that the
+   paper does not establish, keep it explicitly marked as an inference.
+6. Save the revised `.md` to the same path, retaining the original six-section
+   structure and math-delimiter rules. Report briefly which sections were
+   updated and whether a `多轮对话补充` section was added.
+
+Do not revise the file after every ordinary follow-up question. Once the
+initial `.md` exists and this paper-reading follow-up is active, an explicit
+or unambiguous end-of-discussion signal is sufficient to trigger the revision;
+do not ask for a second confirmation. Ask for clarification only when no
+initial document exists or the user's intent is genuinely ambiguous.
+
 ## Method reconstruction rules
 
 When describing `A - Action`, include the following if the paper reports them:
@@ -139,3 +177,4 @@ Before finishing, verify that:
 - discrepancies across sections are called out;
 - the limitations section states what the experiments cannot establish.
 - the complete answer was saved as a `.md` file, display math uses standalone `$$` delimiters, and no `\(...\)` or `\[...\]` math delimiters remain.
+- if a conversation-end signal was given after follow-up questions, the `.md` was revised from the full dialogue, existing sections were updated where appropriate, and any otherwise-unplaced paper-relevant material was added under `### 7. 多轮对话补充` with evidence labels and locators.

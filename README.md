@@ -59,15 +59,15 @@ The preview values are illustrative synthetic data. Regenerate all previews with
 <table>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_a_train_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_a_train_loss.png" alt="Training loss" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_a_train_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_a_train_loss.png" alt="Training loss" width="100%">
       </a>
       <br>
       <strong>(a) Training loss</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_b_val_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_b_val_loss.png" alt="Validation loss" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_b_val_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_b_val_loss.png" alt="Validation loss" width="100%">
       </a>
       <br>
       <strong>(b) Validation loss</strong>
@@ -75,15 +75,15 @@ The preview values are illustrative synthetic data. Regenerate all previews with
   </tr>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.png" alt="Training vs validation loss" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_c_train_vs_val_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_c_train_vs_val_loss.png" alt="Training vs validation loss" width="100%">
       </a>
       <br>
       <strong>(c) Training vs. validation loss</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_d_lr_schedule.pdf">
-        <img src="assets/examples/sample_llm_training_curves_d_lr_schedule.png" alt="Learning-rate schedule" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_d_lr_schedule.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_d_lr_schedule.png" alt="Learning-rate schedule" width="100%">
       </a>
       <br>
       <strong>(d) Learning-rate schedule</strong>
@@ -96,15 +96,15 @@ The preview values are illustrative synthetic data. Regenerate all previews with
 <table>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_bar_single.pdf">
-        <img src="assets/examples/sample_bar_single.png" alt="Single highlighted bar chart" width="100%">
+      <a href="assets/examples/bar_charts/sample_bar_single.pdf">
+        <img src="assets/examples/bar_charts/sample_bar_single.png" alt="Single highlighted bar chart" width="100%">
       </a>
       <br>
       <strong>Single highlighted bar chart</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_bar_grouped.pdf">
-        <img src="assets/examples/sample_bar_grouped.png" alt="Grouped bar chart" width="100%">
+      <a href="assets/examples/bar_charts/sample_bar_grouped.pdf">
+        <img src="assets/examples/bar_charts/sample_bar_grouped.png" alt="Grouped bar chart" width="100%">
       </a>
       <br>
       <strong>Grouped bar chart</strong>
@@ -170,8 +170,10 @@ my-codex-skills/
 │   └── paper-reading/
 └── assets/
     └── examples/
-        └── paper_layout/
-            └── paper_layout_demo.tex
+        ├── bar_charts/
+        ├── training_curves/
+        ├── paper_layout/
+        └── generate_examples.py
 ```
 
 ## Notes

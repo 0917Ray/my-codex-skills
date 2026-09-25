@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = Path(__file__).resolve().parent
+TRAINING_CURVES = EXAMPLES / "training_curves"
+BAR_CHARTS = EXAMPLES / "bar_charts"
 TRAINING_SCRIPT = ROOT / "skills/plot-training-curves/scripts/plot_training_curves.py"
 BAR_SCRIPT = ROOT / "skills/plot-bar-charts/scripts/plot_bar_charts.py"
 
@@ -74,6 +76,8 @@ def write_bars(single_path: Path, grouped_path: Path) -> None:
 
 
 def main() -> None:
+    TRAINING_CURVES.mkdir(exist_ok=True)
+    BAR_CHARTS.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="codex-plot-examples-") as scratch:
         directory = Path(scratch)
         training = directory / "training.csv"
@@ -92,7 +96,7 @@ def main() -> None:
                 "--smooth",
                 "7",
                 "--output",
-                str(EXAMPLES / "sample_llm_training_curves.png"),
+                str(TRAINING_CURVES / "sample_llm_training_curves.png"),
                 "--pdf",
             ],
             [
@@ -116,7 +120,7 @@ def main() -> None:
                 "--ylabel",
                 "Accuracy (%)",
                 "--output",
-                str(EXAMPLES / "sample_bar_single.png"),
+                str(BAR_CHARTS / "sample_bar_single.png"),
                 "--pdf",
             ],
             [
@@ -140,7 +144,7 @@ def main() -> None:
                 "--ylabel",
                 "Accuracy (%)",
                 "--output",
-                str(EXAMPLES / "sample_bar_grouped.png"),
+                str(BAR_CHARTS / "sample_bar_grouped.png"),
                 "--pdf",
             ],
         ]

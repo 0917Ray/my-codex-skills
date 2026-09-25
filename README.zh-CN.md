@@ -59,15 +59,15 @@
 <table>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_a_train_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_a_train_loss.png" alt="训练损失" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_a_train_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_a_train_loss.png" alt="训练损失" width="100%">
       </a>
       <br>
       <strong>(a) 训练损失</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_b_val_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_b_val_loss.png" alt="验证损失" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_b_val_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_b_val_loss.png" alt="验证损失" width="100%">
       </a>
       <br>
       <strong>(b) 验证损失</strong>
@@ -75,15 +75,15 @@
   </tr>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.pdf">
-        <img src="assets/examples/sample_llm_training_curves_c_train_vs_val_loss.png" alt="训练损失与验证损失对比" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_c_train_vs_val_loss.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_c_train_vs_val_loss.png" alt="训练损失与验证损失对比" width="100%">
       </a>
       <br>
       <strong>(c) 训练损失与验证损失对比</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_llm_training_curves_d_lr_schedule.pdf">
-        <img src="assets/examples/sample_llm_training_curves_d_lr_schedule.png" alt="学习率调度" width="100%">
+      <a href="assets/examples/training_curves/sample_llm_training_curves_d_lr_schedule.pdf">
+        <img src="assets/examples/training_curves/sample_llm_training_curves_d_lr_schedule.png" alt="学习率调度" width="100%">
       </a>
       <br>
       <strong>(d) 学习率调度</strong>
@@ -96,15 +96,15 @@
 <table>
   <tr>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_bar_single.pdf">
-        <img src="assets/examples/sample_bar_single.png" alt="单组高亮柱状图" width="100%">
+      <a href="assets/examples/bar_charts/sample_bar_single.pdf">
+        <img src="assets/examples/bar_charts/sample_bar_single.png" alt="单组高亮柱状图" width="100%">
       </a>
       <br>
       <strong>单组高亮柱状图</strong>
     </td>
     <td align="center" width="50%">
-      <a href="assets/examples/sample_bar_grouped.pdf">
-        <img src="assets/examples/sample_bar_grouped.png" alt="分组柱状图" width="100%">
+      <a href="assets/examples/bar_charts/sample_bar_grouped.pdf">
+        <img src="assets/examples/bar_charts/sample_bar_grouped.png" alt="分组柱状图" width="100%">
       </a>
       <br>
       <strong>分组柱状图</strong>
@@ -166,8 +166,10 @@ my-codex-skills/
 │   └── paper-reading/
 └── assets/
     └── examples/
-        └── paper_layout/
-            └── paper_layout_demo.tex
+        ├── bar_charts/
+        ├── training_curves/
+        ├── paper_layout/
+        └── generate_examples.py
 ```
 
 ## 说明
