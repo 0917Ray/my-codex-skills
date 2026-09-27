@@ -12,14 +12,14 @@ Use this skill to turn tabular comparison data into clean, publication-ready bar
 ## Workflow
 
 1. Inspect the user's table columns, category labels, series labels, values, and error columns before plotting.
-2. When writing or modifying plotting code, expose a config interface first. Do not hard-code figure size, bar width, colors, alpha, error bar style, value labels, title, axes, grid, legend, or export settings inside plotting calls. Read `references/config-interface.md` for the required controls.
+2. When writing or modifying plotting code, expose a config interface for the actual style controls. Read `references/config-interface.md` for the bundled interface and the reproducible-data contract.
 3. Use `scripts/plot_bar_charts.py` when the data is CSV, TSV, JSON, or a simple rectangular table.
 4. Choose the chart mode:
    - `single` for one value per category.
    - `grouped` for multiple series per category.
 5. Use highlighted single bars for "ours vs baselines" comparisons when one method should stand out.
-6. Export at least PNG for review. Also export PDF when the chart may be used in papers, slides, or reports.
-7. Visually verify labels, error bars, and legend placement.
+6. If analysis code computes plotted values, save a separate full-precision chart-ready CSV (including error magnitudes) before plotting. Keep the source reference and error-bar meaning; never embed those numbers only in plotting calls. Deliver a standalone plot script and JSON config alongside the data and PNG, plus PDF for publication use. Changing the config must redraw from saved data without rerunning the analysis. The bundled script generates these companion files automatically.
+7. Reject ambiguous duplicate categories, incomplete grouped combinations, and invalid values rather than silently aggregating. Visually verify labels, error bars, and legend placement.
 
 ## Script Usage
 
@@ -71,6 +71,6 @@ Use the bundled visual style unless the user requests a different house style:
 
 ## Config Interface
 
-Any custom plotting code produced under this skill must define a `DEFAULT_CONFIG` dictionary or dataclass and accept user overrides through a function argument and, for scripts, a JSON/YAML config file. Keep all user-visible and style-affecting choices in config.
+Any custom plotting code produced under this skill must accept an external JSON config and a data-file path, with paths relative to the config for portable replotting. Keep the chart-ready data separate from code, and keep user-visible style choices in config.
 
-Read `references/config-interface.md` before writing or substantially modifying plotting code. At minimum, expose controls for figure size, output names/formats, category ordering, series ordering, per-bar or per-series colors, bar width, fill/edge alpha, error bars, value labels, axis limits/scales/ticks, grid, spines, legend placement, and export settings.
+Read `references/config-interface.md` before writing or substantially modifying plotting code. Implement only relevant controls, and ensure documented controls actually work; do not imply that the bundled script supports an option it does not implement.

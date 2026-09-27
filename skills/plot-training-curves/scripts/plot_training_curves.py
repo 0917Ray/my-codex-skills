@@ -9,6 +9,7 @@ import json
 import math
 import os
 import re
+import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -81,6 +82,62 @@ class Series:
     y_key: str
 
 
+DEFAULT_CONFIG: dict[str, Any] = {
+    "data": {"input": None, "source": None, "x": "auto", "train_loss_key": None,
+             "val_loss_key": None, "lr_key": None},
+    "plot": {"mode": "auto", "smooth": 1, "title": None,
+             "titles": {"training-loss": "(a) Training Loss",
+                        "validation-loss": "(b) Validation Loss",
+                        "train-vs-val": "(c) Training vs. Validation Loss",
+                        "lr-schedule": "(d) Learning Rate Schedule"}},
+    "figure": {"figsize": [7.2, 4.6], "panel_figsize": [7.4, 5.8], "dpi": 300,
+               "spine_width": 2.5, "transparent": True},
+    "series": {
+        "train_loss": {"color": "#4F7C65", "linewidth": 2.0, "line_alpha": 0.92,
+                       "marker": "s", "marker_size": 5.0, "marker_face_alpha": 0.6,
+                       "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
+        "val_loss": {"color": "#A75B73", "linewidth": 2.0, "line_alpha": 0.92,
+                     "marker": "^", "marker_size": 5.2, "marker_face_alpha": 0.6,
+                     "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
+        "lr": {"color": "#516480", "linewidth": 2.0, "line_alpha": 0.92,
+               "marker": "D", "marker_size": 4.8, "marker_face_alpha": 0.6,
+               "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
+    },
+    "axis": {"target_x_ticks": 9, "target_y_ticks": 7, "y_margin": 0.07,
+             "xlim": None, "ylim": None, "grid": True, "xlabel": None,
+             "x_integer": None},
+    "legend": {"enabled": True, "loc": "best"},
+    "output": {"filename": "training_curves.png", "pdf": False},
+}
+
+
+def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    result = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+def load_config(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    with path.open("r", encoding="utf-8") as handle:
+        if path.suffix.lower() in {".yml", ".yaml"}:
+            try:
+                import yaml
+            except ModuleNotFoundError as exc:
+                raise SystemExit("YAML config requires PyYAML. Use JSON or install pyyaml.") from exc
+            result = yaml.safe_load(handle) or {}
+        else:
+            result = json.load(handle)
+    if not isinstance(result, dict):
+        raise ValueError("Config must contain a mapping/object.")
+    return result
+
+
 def colors() -> dict[str, str]:
     return {
         "blue": "#516480",
@@ -112,7 +169,11 @@ def set_line_plot_style(
     line_width: float = 2.0,
     figure_size: tuple[float, float] = (7.2, 4.6),
     spine_width: float = 2.5,
+    config: dict[str, Any] | None = None,
 ) -> None:
+    if config is not None:
+        figure_size = tuple(figure_size)
+        spine_width = config["figure"]["spine_width"]
     c = colors()
     n = neutrals()
 
@@ -128,12 +189,12 @@ def set_line_plot_style(
             "svg.fonttype": "none",
             "figure.figsize": figure_size,
             "figure.dpi": 140,
-            "figure.facecolor": "none",
-            "axes.facecolor": "none",
-            "savefig.facecolor": "none",
-            "savefig.edgecolor": "none",
-            "savefig.transparent": True,
-            "savefig.dpi": 300,
+            "figure.facecolor": "none" if config is None or config["figure"]["transparent"] else "white",
+            "axes.facecolor": "none" if config is None or config["figure"]["transparent"] else "white",
+            "savefig.facecolor": "none" if config is None or config["figure"]["transparent"] else "white",
+            "savefig.edgecolor": "none" if config is None or config["figure"]["transparent"] else "white",
+            "savefig.transparent": True if config is None else config["figure"]["transparent"],
+            "savefig.dpi": 300 if config is None else config["figure"]["dpi"],
             "savefig.bbox": "tight",
             "savefig.pad_inches": 0.04,
             "axes.prop_cycle": cycler(
@@ -302,7 +363,13 @@ def apply_smart_ticks(
     show_y_minor_grid: bool = True,
     x_margin: float = 0.0,
     y_margin: float = 0.05,
+    config: dict[str, Any] | None = None,
 ) -> None:
+    if config is not None:
+        axis = config["axis"]
+        target_x_ticks = axis["target_x_ticks"]
+        target_y_ticks = axis["target_y_ticks"]
+        y_margin = axis["y_margin"]
     n = neutrals()
 
     if x_data is not None and len(x_data) > 0:
@@ -359,6 +426,13 @@ def apply_smart_ticks(
         linewidth=0.50,
         alpha=0.34,
     )
+    if config is not None:
+        if config["axis"]["xlim"] is not None:
+            ax.set_xlim(*config["axis"]["xlim"])
+        if config["axis"]["ylim"] is not None:
+            ax.set_ylim(*config["axis"]["ylim"])
+        if not config["axis"]["grid"]:
+            ax.grid(False, which="both")
 
 
 def normalize_key(key: str) -> str:
@@ -441,12 +515,17 @@ def find_key(records: Iterable[dict[str, Any]], candidates: list[str]) -> str | 
 
 
 def choose_x_key(records: list[dict[str, Any]], requested: str) -> str | None:
+    if requested == "index":
+        return None
     if requested != "auto":
         found = find_key(records, [requested])
         if found is None:
             raise ValueError(f"Could not find requested x-axis key: {requested}")
         return found
-    return find_key(records, X_KEYS)
+    found = find_key(records, X_KEYS)
+    if found is None:
+        raise ValueError("No x-axis key found; provide a column with --x or explicitly use --x index.")
+    return found
 
 
 def build_series(
@@ -460,17 +539,19 @@ def build_series(
 
     xs: list[float] = []
     ys: list[float] = []
-    for record in records:
+    for number, record in enumerate(records, 1):
         y = to_float(record.get(y_key))
+        if y_key in record and str(record[y_key]).strip() and not math.isfinite(y):
+            raise ValueError(f"Record {number}: invalid {y_key} value.")
         if not math.isfinite(y):
             continue
 
         if x_key is None:
-            x = float(len(xs) + 1)
+            x = float(number)
         else:
             x = to_float(record.get(x_key))
             if not math.isfinite(x):
-                x = float(len(xs) + 1)
+                raise ValueError(f"Record {number}: missing or invalid {x_key} for {y_key}.")
 
         xs.append(x)
         ys.append(y)
@@ -523,9 +604,13 @@ def plot_loss_series(
     index: int,
     smooth: int = 1,
     validation: bool = False,
+    config: dict[str, Any] | None = None,
 ) -> None:
     c = colors()
     color = c["red"] if validation else c["green"]
+    style = config["series"]["val_loss" if validation else "train_loss"] if config else None
+    if style:
+        color = style["color"]
     y_plot = moving_average(series.y, smooth)
 
     if smooth > 1 and len(series.y) > 3 and not validation:
@@ -548,19 +633,22 @@ def plot_loss_series(
         label=final_label,
         index=index,
         color=color,
+        marker=style["marker"] if style else None,
+        linewidth=style["linewidth"] if style else None,
         target_markers=10 if validation else 9,
         include_endpoints=validation,
-        marker_size=5.2 if validation else 5.0,
-        marker_edge_width=1.35,
-        marker_face_alpha=0.6,
-        marker_edge_alpha=0.95,
-        line_alpha=0.92,
+        marker_size=style["marker_size"] if style else (5.2 if validation else 5.0),
+        marker_edge_width=style["marker_edge_width"] if style else 1.35,
+        marker_face_alpha=style["marker_face_alpha"] if style else 0.6,
+        marker_edge_alpha=style["marker_edge_alpha"] if style else 0.95,
+        line_alpha=style["line_alpha"] if style else 0.92,
         zorder=4 if validation else 3,
     )
 
 
-def plot_lr_series(ax: plt.Axes, series: Series, label: str = "Learning rate") -> None:
-    color = colors()["blue"]
+def plot_lr_series(ax: plt.Axes, series: Series, label: str = "Learning rate", config: dict[str, Any] | None = None) -> None:
+    style = config["series"]["lr"] if config else None
+    color = style["color"] if style else colors()["blue"]
     plot_line_with_auto_marker(
         ax,
         series.x,
@@ -568,13 +656,15 @@ def plot_lr_series(ax: plt.Axes, series: Series, label: str = "Learning rate") -
         label=label,
         index=2,
         color=color,
+        marker=style["marker"] if style else None,
+        linewidth=style["linewidth"] if style else None,
         target_markers=9,
         include_endpoints=False,
-        marker_size=4.8,
-        marker_edge_width=1.35,
-        marker_face_alpha=0.6,
-        marker_edge_alpha=0.95,
-        line_alpha=0.92,
+        marker_size=style["marker_size"] if style else 4.8,
+        marker_edge_width=style["marker_edge_width"] if style else 1.35,
+        marker_face_alpha=style["marker_face_alpha"] if style else 0.6,
+        marker_edge_alpha=style["marker_edge_alpha"] if style else 0.95,
+        line_alpha=style["line_alpha"] if style else 0.92,
     )
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.1e"))
 
@@ -600,8 +690,9 @@ def render_single_axis(
     title: str | None,
     show_legend: bool,
     spine_width: float = 2.5,
+    config: dict[str, Any] | None = None,
 ) -> plt.Figure:
-    set_line_plot_style(spine_width=spine_width)
+    set_line_plot_style(spine_width=spine_width, figure_size=tuple(config["figure"]["figsize"]) if config else (7.2, 4.6), config=config)
     fig, ax = plt.subplots()
 
     active: list[Series | None] = []
@@ -609,27 +700,27 @@ def render_single_axis(
 
     if mode == "training-loss":
         train = require_series(train, "training loss")
-        plot_loss_series(ax, train, "Training loss", index=0, smooth=smooth)
+        plot_loss_series(ax, train, "Training loss", index=0, smooth=smooth, config=config)
         ax.set_ylabel("Training loss")
         active = [train]
         x_key = train.x_key
     elif mode == "validation-loss":
         val = require_series(val, "validation loss")
-        plot_loss_series(ax, val, "Validation loss", index=1, validation=True)
+        plot_loss_series(ax, val, "Validation loss", index=1, validation=True, config=config)
         ax.set_ylabel("Validation loss")
         active = [val]
         x_key = val.x_key
     elif mode == "train-vs-val":
         train = require_series(train, "training loss")
         val = require_series(val, "validation loss")
-        plot_loss_series(ax, train, "Training loss", index=0, smooth=smooth)
-        plot_loss_series(ax, val, "Validation loss", index=1, validation=True)
+        plot_loss_series(ax, train, "Training loss", index=0, smooth=smooth, config=config)
+        plot_loss_series(ax, val, "Validation loss", index=1, validation=True, config=config)
         ax.set_ylabel("Loss")
         active = [train, val]
         x_key = train.x_key if train.x_key != "index" else val.x_key
     elif mode == "lr-schedule":
         lr = require_series(lr, "learning rate")
-        plot_lr_series(ax, lr)
+        plot_lr_series(ax, lr, config=config)
         ax.set_ylabel("Learning rate")
         active = [lr]
         x_key = lr.x_key
@@ -637,22 +728,23 @@ def render_single_axis(
         raise ValueError(f"Unsupported single-axis mode: {mode}")
 
     x_data, y_data = combined_xy(active)
-    ax.set_xlabel(x_axis_label(x_key))
+    ax.set_xlabel(config["axis"]["xlabel"] if config and config["axis"]["xlabel"] is not None else x_axis_label(x_key))
     apply_smart_ticks(
         ax,
         x_data=x_data,
         y_data=y_data,
         target_x_ticks=9,
         target_y_ticks=7,
-        x_integer=x_is_integer(x_key),
+        x_integer=config["axis"]["x_integer"] if config and config["axis"]["x_integer"] is not None else x_is_integer(x_key),
         y_integer=False,
         y_margin=0.07,
+        config=config,
     )
 
     if title:
         ax.set_title(title)
     if show_legend:
-        ax.legend(loc="best")
+        ax.legend(loc=config["legend"]["loc"] if config else "best")
     fig.tight_layout()
     return fig
 
@@ -665,28 +757,29 @@ def render_loss_lr_panels(
     title: str | None,
     show_legend: bool,
     spine_width: float = 2.5,
+    config: dict[str, Any] | None = None,
 ) -> plt.Figure:
     lr = require_series(lr, "learning rate")
     if train is None and val is None:
         raise ValueError("Could not find training or validation loss for panel plot.")
 
-    set_line_plot_style(figure_size=(7.4, 5.8), spine_width=spine_width)
+    set_line_plot_style(figure_size=tuple(config["figure"]["panel_figsize"]) if config else (7.4, 5.8), spine_width=spine_width, config=config)
     fig, axes = plt.subplots(2, 1, sharex=True, gridspec_kw={"height_ratios": [2.1, 1]})
     loss_ax, lr_ax = axes
 
     active_loss: list[Series | None] = []
     x_key = lr.x_key
     if train is not None:
-        plot_loss_series(loss_ax, train, "Training loss", index=0, smooth=smooth)
+        plot_loss_series(loss_ax, train, "Training loss", index=0, smooth=smooth, config=config)
         active_loss.append(train)
         x_key = train.x_key
     if val is not None:
-        plot_loss_series(loss_ax, val, "Validation loss", index=1, validation=True)
+        plot_loss_series(loss_ax, val, "Validation loss", index=1, validation=True, config=config)
         active_loss.append(val)
         if x_key == "index":
             x_key = val.x_key
 
-    plot_lr_series(lr_ax, lr)
+    plot_lr_series(lr_ax, lr, config=config)
 
     loss_x, loss_y = combined_xy(active_loss)
     apply_smart_ticks(
@@ -695,9 +788,10 @@ def render_loss_lr_panels(
         y_data=loss_y,
         target_x_ticks=9,
         target_y_ticks=6,
-        x_integer=x_is_integer(x_key),
+        x_integer=config["axis"]["x_integer"] if config and config["axis"]["x_integer"] is not None else x_is_integer(x_key),
         y_integer=False,
         y_margin=0.07,
+        config=config,
     )
     apply_smart_ticks(
         lr_ax,
@@ -705,20 +799,21 @@ def render_loss_lr_panels(
         y_data=lr.y,
         target_x_ticks=9,
         target_y_ticks=4,
-        x_integer=x_is_integer(x_key),
+        x_integer=config["axis"]["x_integer"] if config and config["axis"]["x_integer"] is not None else x_is_integer(x_key),
         y_integer=False,
         y_margin=0.12,
+        config=config,
     )
 
     loss_ax.set_ylabel("Loss")
     lr_ax.set_ylabel("Learning rate")
-    lr_ax.set_xlabel(x_axis_label(x_key))
+    lr_ax.set_xlabel(config["axis"]["xlabel"] if config and config["axis"]["xlabel"] is not None else x_axis_label(x_key))
 
     if title:
         loss_ax.set_title(title)
     if show_legend:
-        loss_ax.legend(loc="best")
-        lr_ax.legend(loc="best")
+        loss_ax.legend(loc=config["legend"]["loc"] if config else "best")
+        lr_ax.legend(loc=config["legend"]["loc"] if config else "best")
     fig.tight_layout()
     return fig
 
@@ -737,15 +832,16 @@ def choose_auto_mode(train: Series | None, val: Series | None, lr: Series | None
     raise ValueError("No supported training metrics were found in the input log.")
 
 
-def save_figure(fig: plt.Figure, output: Path, pdf: bool) -> list[Path]:
+def save_figure(fig: plt.Figure, output: Path, pdf: bool, config: dict[str, Any] | None = None) -> list[Path]:
     if output.suffix == "":
         output = output.with_suffix(".png")
     output.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output, transparent=True)
+    transparent = config["figure"]["transparent"] if config else True
+    fig.savefig(output, transparent=transparent)
     saved = [output]
     if pdf:
         pdf_path = output.with_suffix(".pdf")
-        fig.savefig(pdf_path, transparent=True)
+        fig.savefig(pdf_path, transparent=transparent)
         saved.append(pdf_path)
     return saved
 
@@ -765,29 +861,67 @@ def save_separate_figures(
     pdf: bool,
     show_legend: bool,
     spine_width: float = 2.5,
+    config: dict[str, Any] | None = None,
 ) -> list[Path]:
     stem = output_stem(output)
     jobs = [
-        ("training-loss", "a_train_loss", "(a) Training Loss"),
-        ("validation-loss", "b_val_loss", "(b) Validation Loss"),
-        ("train-vs-val", "c_train_vs_val_loss", "(c) Training vs. Validation Loss"),
-        ("lr-schedule", "d_lr_schedule", "(d) Learning Rate Schedule"),
+        ("training-loss", "a_train_loss"),
+        ("validation-loss", "b_val_loss"),
+        ("train-vs-val", "c_train_vs_val_loss"),
+        ("lr-schedule", "d_lr_schedule"),
     ]
     saved: list[Path] = []
-    for mode, suffix, title in jobs:
+    for mode, suffix in jobs:
+        title = config["plot"]["titles"][mode] if config else None
         fig = render_single_axis(
-            mode, train, val, lr, smooth, title, show_legend, spine_width
+            mode, train, val, lr, smooth, title, show_legend, spine_width, config
         )
-        saved.extend(save_figure(fig, stem.with_name(f"{stem.name}_{suffix}.png"), pdf))
+        saved.extend(save_figure(fig, stem.with_name(f"{stem.name}_{suffix}.png"), pdf, config))
         plt.close(fig)
     return saved
+
+
+def write_bundle(
+    output: Path, config: dict[str, Any], records: list[dict[str, Any]],
+    x_key: str | None, keys: dict[str, str | None],
+) -> list[Path]:
+    stem = output_stem(output)
+    data_path = stem.with_name(f"{stem.name}_data.csv")
+    config_path = stem.with_name(f"{stem.name}_config.json")
+    script_path = stem.with_name(f"{stem.name}_plot.py")
+    if Path(config["data"]["input"] or "").resolve() != data_path.resolve():
+        with data_path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=["x", "train_loss", "val_loss", "learning_rate"])
+            writer.writeheader()
+            for number, record in enumerate(records, 1):
+                row: dict[str, Any] = {}
+                for target, key in keys.items():
+                    if key is not None:
+                        value = to_float(record.get(key))
+                        if math.isfinite(value):
+                            row[target] = repr(value)
+                if row:
+                    x = float(number) if x_key is None else to_float(record.get(x_key))
+                    if not math.isfinite(x):
+                        raise ValueError(f"Record {number}: missing or invalid {x_key}.")
+                    writer.writerow({"x": repr(x), **row})
+    config["data"].update(input=data_path.name, x="x", train_loss_key="train_loss",
+                          val_loss_key="val_loss", lr_key="learning_rate")
+    config["output"]["filename"] = output.name
+    with config_path.open("w", encoding="utf-8") as handle:
+        json.dump(config, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+    if Path(__file__).resolve() != script_path.resolve():
+        shutil.copyfile(__file__, script_path)
+    return [data_path, config_path, script_path]
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Plot LLM training loss, validation loss, and learning-rate curves."
     )
-    parser.add_argument("input", type=Path, help="CSV, TSV, JSONL, JSON, or trainer_state.json")
+    parser.add_argument("input", type=Path, nargs="?", help="CSV, TSV, JSONL, JSON, or trainer_state.json")
+    parser.add_argument("--config", type=Path, help="JSON/YAML plotting config; input and output paths resolve relative to it.")
     parser.add_argument(
         "--mode",
         choices=[
@@ -799,30 +933,30 @@ def parse_args() -> argparse.Namespace:
             "all-separate",
             "loss-and-lr-panels",
         ],
-        default="auto",
+        default=None,
         help="Chart type to render. auto renders all-separate when train, val, and LR are present.",
     )
     parser.add_argument(
         "--x",
-        default="auto",
+        default=None,
         help="X-axis key. Use auto, step, global_step, epoch, or an exact log key.",
     )
     parser.add_argument(
         "--smooth",
         type=int,
-        default=1,
+        default=None,
         help="Centered moving-average window for training loss.",
     )
     parser.add_argument("--title", default=None, help="Optional chart title.")
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("training_curves.png"),
+        default=None,
         help="Output file path. For all-separate mode, this is used as the filename prefix.",
     )
-    parser.add_argument("--pdf", action="store_true", help="Also save a companion PDF.")
+    parser.add_argument("--pdf", action="store_true", default=None, help="Also save a companion PDF.")
     parser.add_argument(
-        "--spine-width", type=float, default=2.5,
+        "--spine-width", type=float, default=None,
         help="Thickness in points of the four sides of the axes frame (default: 2.5).",
     )
     parser.add_argument("--no-legend", action="store_true", help="Hide the legend.")
@@ -831,36 +965,93 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    if args.spine_width <= 0:
+    config = deep_merge(DEFAULT_CONFIG, load_config(args.config))
+    data = config["data"]
+    plot = config["plot"]
+    if args.x is not None:
+        data["x"] = args.x
+    if args.mode is not None:
+        plot["mode"] = args.mode
+    if args.smooth is not None:
+        plot["smooth"] = args.smooth
+    if args.title is not None:
+        plot["title"] = args.title
+    if args.spine_width is not None:
+        config["figure"]["spine_width"] = args.spine_width
+    if args.no_legend:
+        config["legend"]["enabled"] = False
+    if args.pdf is not None:
+        config["output"]["pdf"] = args.pdf
+    if config["figure"]["spine_width"] <= 0:
         raise ValueError("--spine-width must be positive.")
-    records = load_records(args.input)
+    if not isinstance(plot["smooth"], int) or plot["smooth"] < 1:
+        raise ValueError("Smoothing window must be a positive integer.")
+    input_path = args.input or (Path(data["input"]) if data["input"] else None)
+    if input_path is None:
+        raise ValueError("Provide an input file or set data.input in config.")
+    if args.input is None and args.config and not input_path.is_absolute():
+        input_path = args.config.parent / input_path
+    output = args.output or Path(config["output"]["filename"])
+    if args.output is None and args.config and not output.is_absolute():
+        output = args.config.parent / output
+    if output.suffix == "":
+        output = output.with_suffix(".png")
+    if data["source"] is None:
+        data["source"] = str(input_path.resolve())
+    records = load_records(input_path)
     if not records:
-        raise ValueError(f"No records found in {args.input}")
+        raise ValueError(f"No records found in {input_path}")
 
-    x_key = choose_x_key(records, args.x)
-    train = build_series(records, find_key(records, TRAIN_LOSS_KEYS), "Training loss", x_key)
-    val = build_series(records, find_key(records, VAL_LOSS_KEYS), "Validation loss", x_key)
-    lr = build_series(records, find_key(records, LR_KEYS), "Learning rate", x_key)
+    x_key = choose_x_key(records, data["x"])
+    if config["axis"]["xlabel"] is None:
+        config["axis"]["xlabel"] = x_axis_label(x_key)
+    if config["axis"]["x_integer"] is None:
+        config["axis"]["x_integer"] = x_is_integer(x_key)
+    keys = {
+        "train_loss": find_key(records, [data["train_loss_key"]] if data["train_loss_key"] else TRAIN_LOSS_KEYS),
+        "val_loss": find_key(records, [data["val_loss_key"]] if data["val_loss_key"] else VAL_LOSS_KEYS),
+        "learning_rate": find_key(records, [data["lr_key"]] if data["lr_key"] else LR_KEYS),
+    }
+    for target, explicit in (("train_loss", "train_loss_key"), ("val_loss", "val_loss_key"), ("learning_rate", "lr_key")):
+        if data[explicit] and keys[target] is None:
+            raise ValueError(f"Could not find configured metric column: {data[explicit]}")
+    if input_path.resolve() == output_stem(output).with_name(f"{output_stem(output).name}_data.csv").resolve() and (
+        x_key != "x" or any(key not in (None, target) for target, key in keys.items())
+    ):
+        raise ValueError("Input conflicts with the chart-ready data path; choose a different --output name.")
+    train = build_series(records, keys["train_loss"], "Training loss", x_key)
+    val = build_series(records, keys["val_loss"], "Validation loss", x_key)
+    lr = build_series(records, keys["learning_rate"], "Learning rate", x_key)
 
-    mode = choose_auto_mode(train, val, lr) if args.mode == "auto" else args.mode
-    show_legend = not args.no_legend
+    mode = choose_auto_mode(train, val, lr) if plot["mode"] == "auto" else plot["mode"]
+    plot["mode"] = mode
+    if mode == "all-separate":
+        require_series(train, "training loss")
+        require_series(val, "validation loss")
+        require_series(lr, "learning rate")
+    show_legend = config["legend"]["enabled"]
 
     if mode == "all-separate":
         saved = save_separate_figures(
-            train, val, lr, args.smooth, args.output, args.pdf,
-            show_legend, args.spine_width,
+            train, val, lr, plot["smooth"], output, config["output"]["pdf"],
+            show_legend, config["figure"]["spine_width"], config,
         )
     elif mode == "loss-and-lr-panels":
         fig = render_loss_lr_panels(
-            train, val, lr, args.smooth, args.title, show_legend, args.spine_width
+            train, val, lr, plot["smooth"], plot["title"], show_legend, config["figure"]["spine_width"], config
         )
-        saved = save_figure(fig, args.output, args.pdf)
+        saved = save_figure(fig, output, config["output"]["pdf"], config)
+        plt.close(fig)
     else:
         fig = render_single_axis(
-            mode, train, val, lr, args.smooth, args.title, show_legend,
-            args.spine_width,
+            mode, train, val, lr, plot["smooth"], plot["title"], show_legend,
+            config["figure"]["spine_width"], config,
         )
-        saved = save_figure(fig, args.output, args.pdf)
+        saved = save_figure(fig, output, config["output"]["pdf"], config)
+        plt.close(fig)
+
+    config["data"]["input"] = str(input_path.resolve())
+    saved.extend(write_bundle(output, config, records, x_key, keys))
 
     for path in saved:
         print(path)

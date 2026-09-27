@@ -21,6 +21,7 @@ Create configurable line plots for LLM and machine-learning training logs, inclu
 
 The skill emphasizes reusable plotting code with explicit config interfaces for figure size, colors, line styles, alpha, markers, titles, labels, legends, ticks, grids, and export settings.
 Its default plots use a complete `2.5 pt` axes frame, `2.0 pt` main curves, and slightly stronger marker edges.
+Each run also saves full-precision unsmoothed chart data, a JSON config, and a standalone plot script next to the image. Edit the config and rerun that script to redraw without the original training log.
 
 ### `plot-bar-charts`
 
@@ -33,6 +34,7 @@ Create configurable single and grouped bar charts for scientific comparisons, in
 
 The skill also requires generated bar-plot code to expose config controls for bar width, colors, alpha, edge style, error bars, value labels, legend placement, axis settings, and export formats.
 Its default plots use a complete `2.5 pt` axes frame and `2.0 pt` bar outlines.
+It saves chart-ready values and uncertainties as CSV alongside a JSON config and standalone plot script. Duplicate or missing comparison values now fail explicitly instead of being silently replaced.
 
 ### `paper-reading`
 
@@ -40,13 +42,13 @@ Read an attached English research paper and produce an evidence-grounded Chinese
 
 - STAR summary of the motivation, task, method, and results;
 - exact method reconstruction with equations, symbols, data flow, training, and inference;
-- independent experiment tables for setup, results, and ablations;
+- experiment comparisons and tables when relevant to the question and paper type;
 - separation of observations, hypotheses, algorithmic consequences, and experimental support;
 - limitations, inconsistencies, uncertainty, and the boundary of the conclusions.
 
 It requires important claims and numbers to be tied to paper locations when available, and distinguishes direct evidence, author speculation, reasonable inference, and unreported information.
 
-The complete analysis is saved as a Markdown file (`.md`), with `$...$` for inline math and `$$...$$` for display math.
+Full analyses are saved as Markdown (`.md`), with `$...$` for inline math and `$$...$$` for display math. Focused follow-up questions do not rewrite the file unless revision is requested.
 
 ## Examples
 
@@ -180,4 +182,4 @@ my-codex-skills/
 
 The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading skill does not include a script.
 
-These skills are intended both as runnable tools and as plotting-code templates. When Codex writes new plotting code using these skills, it should expose a clear config interface rather than hard-coding visual parameters.
+These skills are intended both as runnable tools and as plotting-code templates. Each plotted result should retain chart-ready data, a configurable plot script, and JSON settings so style adjustments do not rerun the analysis. A typical bundle from `--output figure.png` contains `figure_data.csv`, `figure_config.json`, and `figure_plot.py`; redraw with `python figure_plot.py --config figure_config.json` from any working directory.

@@ -8,6 +8,7 @@ import csv
 import json
 import math
 import os
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -34,6 +35,17 @@ except ModuleNotFoundError as exc:
 
 
 DEFAULT_CONFIG: dict[str, Any] = {
+    "data": {
+        "input": None,
+        "source": None,
+        "mode": None,
+        "label_column": None,
+        "group_column": None,
+        "series_column": None,
+        "value_column": None,
+        "error_column": None,
+        "highlight_label": None,
+    },
     "figure": {
         "figsize": [6.8, 4.4],
         "grouped_figsize": [7.4, 4.6],
@@ -138,6 +150,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "ylabel": None,
     },
     "output": {
+        "filename": None,
+        "pdf": False,
         "dpi": 300,
         "bbox_inches": "tight",
         "pad_inches": 0.04,
@@ -228,10 +242,10 @@ def set_style(config: dict[str, Any], figure_size: list[float]) -> None:
             "svg.fonttype": "none",
             "figure.figsize": tuple(figure_size),
             "figure.dpi": figure["dpi"],
-            "figure.facecolor": "none",
-            "axes.facecolor": "none",
-            "savefig.facecolor": "none",
-            "savefig.edgecolor": "none",
+            "figure.facecolor": "none" if output["transparent"] else "white",
+            "axes.facecolor": "none" if output["transparent"] else "white",
+            "savefig.facecolor": "none" if output["transparent"] else "white",
+            "savefig.edgecolor": "none" if output["transparent"] else "white",
             "savefig.transparent": output["transparent"],
             "savefig.dpi": output["dpi"],
             "savefig.bbox": output["bbox_inches"],
@@ -521,11 +535,20 @@ def parse_single(records: list[dict[str, Any]], label_col: str, value_col: str, 
     labels = []
     values = []
     errors = [] if error_col else None
-    for row in records:
-        labels.append(str(row[label_col]))
-        values.append(to_float(row[value_col]))
+    for number, row in enumerate(records, 2):
+        label = str(row.get(label_col, "")).strip()
+        value = to_float(row.get(value_col))
+        if not label or not math.isfinite(value):
+            raise ValueError(f"Row {number}: missing label or invalid {value_col}.")
+        if label in labels:
+            raise ValueError(f"Row {number}: duplicate category {label!r}.")
+        labels.append(label)
+        values.append(value)
         if error_col and errors is not None:
-            errors.append(to_float(row.get(error_col)))
+            error = to_float(row.get(error_col))
+            if not math.isfinite(error) or error < 0:
+                raise ValueError(f"Row {number}: invalid nonnegative {error_col}.")
+            errors.append(error)
     return labels, np.asarray(values, dtype=float), None if errors is None else np.asarray(errors)
 
 
@@ -536,37 +559,73 @@ def parse_grouped(
     value_col: str,
     error_col: str | None,
 ):
-    groups = list(dict.fromkeys(str(row[group_col]) for row in records))
-    series = list(dict.fromkeys(str(row[series_col]) for row in records))
+    groups = list(dict.fromkeys(str(row.get(group_col, "")).strip() for row in records))
+    series = list(dict.fromkeys(str(row.get(series_col, "")).strip() for row in records))
     values = np.full((len(groups), len(series)), np.nan)
     errors = np.full((len(groups), len(series)), np.nan) if error_col else None
     group_index = {name: i for i, name in enumerate(groups)}
     series_index = {name: i for i, name in enumerate(series)}
-    for row in records:
-        i = group_index[str(row[group_col])]
-        j = series_index[str(row[series_col])]
-        values[i, j] = to_float(row[value_col])
+    for number, row in enumerate(records, 2):
+        group = str(row.get(group_col, "")).strip()
+        name = str(row.get(series_col, "")).strip()
+        value = to_float(row.get(value_col))
+        if not group or not name or not math.isfinite(value):
+            raise ValueError(f"Row {number}: missing group/series or invalid {value_col}.")
+        i = group_index[group]
+        j = series_index[name]
+        if math.isfinite(values[i, j]):
+            raise ValueError(f"Row {number}: duplicate group/series pair ({group!r}, {name!r}).")
+        values[i, j] = value
         if error_col and errors is not None:
-            errors[i, j] = to_float(row.get(error_col))
+            error = to_float(row.get(error_col))
+            if not math.isfinite(error) or error < 0:
+                raise ValueError(f"Row {number}: invalid nonnegative {error_col}.")
+            errors[i, j] = error
+    missing = np.argwhere(np.isnan(values))
+    if len(missing):
+        examples = ", ".join(f"({groups[i]!r}, {series[j]!r})" for i, j in missing[:5])
+        raise ValueError(f"Missing group/series combinations: {examples}.")
     return groups, series, values, errors
+
+
+def write_bundle(
+    output: Path, config: dict[str, Any], rows: list[dict[str, Any]], fields: list[str]
+) -> list[Path]:
+    stem = output.with_suffix("")
+    data_path = stem.with_name(f"{stem.name}_data.csv")
+    config_path = stem.with_name(f"{stem.name}_config.json")
+    script_path = stem.with_name(f"{stem.name}_plot.py")
+    if Path(config["data"]["input"] or "").resolve() != data_path.resolve():
+        with data_path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+    config["data"]["input"] = data_path.name
+    config["output"]["filename"] = output.name
+    with config_path.open("w", encoding="utf-8") as handle:
+        json.dump(config, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+    if Path(__file__).resolve() != script_path.resolve():
+        shutil.copyfile(__file__, script_path)
+    return [data_path, config_path, script_path]
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Plot scientific single or grouped bar charts.")
-    parser.add_argument("input", type=Path, help="CSV, TSV, or JSON table.")
-    parser.add_argument("--mode", choices=["single", "grouped"], required=True)
+    parser.add_argument("input", type=Path, nargs="?", help="CSV, TSV, or JSON table.")
+    parser.add_argument("--mode", choices=["single", "grouped"], default=None)
     parser.add_argument("--config", type=Path, default=None, help="Optional JSON/YAML config.")
     parser.add_argument("--label-column", default=None, help="Category label column for single mode.")
     parser.add_argument("--group-column", default=None, help="Group/category column for grouped mode.")
     parser.add_argument("--series-column", default=None, help="Series column for grouped mode.")
-    parser.add_argument("--value-column", required=True, help="Metric value column.")
+    parser.add_argument("--value-column", default=None, help="Metric value column.")
     parser.add_argument("--error-column", default=None, help="Optional symmetric error column.")
     parser.add_argument("--highlight-label", default=None, help="Single-mode label to highlight.")
     parser.add_argument("--title", default=None)
     parser.add_argument("--xlabel", default=None)
     parser.add_argument("--ylabel", default=None)
-    parser.add_argument("--output", type=Path, default=Path("bar_chart.png"))
-    parser.add_argument("--pdf", action="store_true", help="Also save a companion PDF.")
+    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--pdf", action="store_true", default=None, help="Also save a companion PDF.")
     parser.add_argument("--no-value-labels", action="store_true")
     parser.add_argument("--no-legend", action="store_true")
     return parser.parse_args()
@@ -575,6 +634,26 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     config = deep_merge(DEFAULT_CONFIG, load_config(args.config))
+    data = config["data"]
+    for key in ("mode", "label_column", "group_column", "series_column", "value_column", "error_column", "highlight_label"):
+        if getattr(args, key) is not None:
+            data[key] = getattr(args, key)
+    if not data["mode"] or not data["value_column"]:
+        raise ValueError("Specify --mode and --value-column (or set data.mode and data.value_column in config).")
+    input_path = args.input or (Path(data["input"]) if data["input"] else None)
+    if input_path is None:
+        raise ValueError("Provide an input file or set data.input in config.")
+    if args.input is None and args.config and not input_path.is_absolute():
+        input_path = args.config.parent / input_path
+    output = args.output or Path(config["output"]["filename"] or "bar_chart.png")
+    if args.output is None and args.config and not output.is_absolute():
+        output = args.config.parent / output
+    if output.suffix == "":
+        output = output.with_suffix(".png")
+    pdf = config["output"]["pdf"] if args.pdf is None else args.pdf
+    config["output"]["pdf"] = pdf
+    if data["source"] is None:
+        data["source"] = str(input_path.resolve())
     if args.title:
         config["text"]["title"] = args.title
     if args.xlabel:
@@ -586,30 +665,52 @@ def main() -> None:
     if args.no_legend:
         config["legend"]["enabled"] = False
 
-    records = load_records(args.input)
+    records = load_records(input_path)
     if not records:
-        raise ValueError(f"No records found in {args.input}")
+        raise ValueError(f"No records found in {input_path}")
 
-    if args.mode == "single":
-        if not args.label_column:
+    if data["mode"] == "single":
+        if not data["label_column"]:
             raise ValueError("--label-column is required for single mode.")
+        if input_path.resolve() == output.with_suffix("").with_name(f"{output.stem}_data.csv").resolve() and (
+            data["label_column"], data["value_column"], data["error_column"]
+        ) not in {("category", "value", None), ("category", "value", "error")}:
+            raise ValueError("Input conflicts with the chart-ready data path; choose a different --output name.")
         labels, values, errors = parse_single(
-            records, args.label_column, args.value_column, args.error_column
+            records, data["label_column"], data["value_column"], data["error_column"]
         )
-        fig = plot_single_bar(labels, values, errors, config, args.highlight_label)
+        fig = plot_single_bar(labels, values, errors, config, data["highlight_label"])
+        rows = [
+            {"category": label, "value": repr(float(value)), "error": "" if errors is None else repr(float(errors[i]))}
+            for i, (label, value) in enumerate(zip(labels, values))
+        ]
+        fields = ["category", "value", "error"]
+        data.update(label_column="category", value_column="value", error_column="error" if errors is not None else None)
     else:
-        if not args.group_column or not args.series_column:
+        if data["mode"] != "grouped":
+            raise ValueError(f"Unsupported mode: {data['mode']}")
+        if not data["group_column"] or not data["series_column"]:
             raise ValueError("--group-column and --series-column are required for grouped mode.")
+        if input_path.resolve() == output.with_suffix("").with_name(f"{output.stem}_data.csv").resolve() and (
+            data["group_column"], data["series_column"], data["value_column"], data["error_column"]
+        ) not in {("group", "series", "value", None), ("group", "series", "value", "error")}:
+            raise ValueError("Input conflicts with the chart-ready data path; choose a different --output name.")
         groups, series, values, errors = parse_grouped(
             records,
-            args.group_column,
-            args.series_column,
-            args.value_column,
-            args.error_column,
+            data["group_column"], data["series_column"], data["value_column"], data["error_column"],
         )
         fig = plot_grouped_bar(groups, series, values, errors, config)
+        rows = [
+            {"group": group, "series": name, "value": repr(float(values[i, j])), "error": "" if errors is None else repr(float(errors[i, j]))}
+            for i, group in enumerate(groups) for j, name in enumerate(series)
+        ]
+        fields = ["group", "series", "value", "error"]
+        data.update(group_column="group", series_column="series", value_column="value", error_column="error" if errors is not None else None)
 
-    saved = save_figure(fig, args.output, args.pdf, config)
+    saved = save_figure(fig, output, pdf, config)
+    plt.close(fig)
+    data["input"] = str(input_path.resolve())
+    saved.extend(write_bundle(output, config, rows, fields))
     for path in saved:
         print(path)
 

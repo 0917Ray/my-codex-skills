@@ -12,7 +12,7 @@ Use this skill to turn experiment logs into clean, publication-ready training cu
 ## Workflow
 
 1. Inspect the user's log file headers or JSON keys before plotting.
-2. When writing or modifying plotting code, expose a config interface first. Do not hard-code figure size, titles, colors, line widths, alphas, marker style, tick settings, legend placement, or export settings inside plotting calls. Read `references/config-interface.md` for the required controls.
+2. When writing or modifying plotting code, read `references/config-interface.md` for the supported controls and reproducible-data contract.
 3. Use `scripts/plot_training_curves.py` when the data is CSV, TSV, JSONL, JSON, or Hugging Face `trainer_state.json`.
 4. Choose the smallest chart mode that answers the request:
    - `all-separate` for the standard four independent figures: `(a) training loss`, `(b) validation loss`, `(c) training vs validation loss`, and `(d) learning-rate schedule`.
@@ -21,8 +21,8 @@ Use this skill to turn experiment logs into clean, publication-ready training cu
    - `train-vs-val` for comparing training and validation loss.
    - `lr-schedule` for learning-rate schedule only.
    - `loss-and-lr-panels` only when the user explicitly asks for a combined panel figure.
-5. Export at least PNG for review. Also export PDF when the chart may be used in papers, slides, or reports.
-6. Visually verify the rendered chart when layout, labels, or aesthetics matter.
+5. When analysis code computes the plotted values, persist unsmoothed, full-precision chart-ready values to a separate CSV before drawing; keep sparse evaluation points sparse and retain the original log reference. Deliver the standalone plot script, JSON config, CSV, and PNG together (plus PDF for publication use). Changing smoothing or style must redraw from the CSV without restarting training or rerunning analysis. The bundled script generates these companion files automatically from an existing log.
+6. Never silently substitute a record index for missing steps or infer absent metrics. Visually verify the rendered chart and distinguish a smoothed trend from measured values.
 
 ## Script Usage
 
@@ -45,9 +45,11 @@ In `all-separate` mode, `--output training_curves.png` is treated as a prefix an
 
 Use a Python environment with `matplotlib` and `numpy`. If the default `python` lacks those packages, switch to the active project, notebook, conda, or runtime Python that produced the logs.
 
+To redraw, run `python training_curves_plot.py --config training_curves_config.json` next to the saved `training_curves_data.csv`; edit `plot.smooth`, colors, or axes in the config. The original log is not needed.
+
 The script auto-detects common columns and keys:
 
-- x-axis: `step`, `global_step`, `epoch`, or an index fallback.
+- x-axis: `step`, `global_step`, or `epoch`; an index requires explicit `--x index`.
 - training loss: `loss`, `train_loss`, `training_loss`, `train/loss`.
 - validation loss: `eval_loss`, `validation_loss`, `val_loss`, `eval/loss`.
 - learning rate: `learning_rate`, `lr`, `train/learning_rate`.
@@ -71,9 +73,9 @@ Use the bundled visual style unless the user requests a different house style:
 
 ## Config Interface
 
-Any custom plotting code produced under this skill must define a `DEFAULT_CONFIG` dictionary or dataclass and accept user overrides through a function argument and, for scripts, a JSON/YAML config file. Keep all user-visible and style-affecting choices in config.
+Any custom plotting code produced under this skill must read an external JSON config and chart-ready data file, with paths relative to the config, and keep user-visible plotting choices in config.
 
-Read `references/config-interface.md` before writing or substantially modifying plotting code. At minimum, expose controls for figure size, output names/formats, per-figure title and labels, per-series color/linestyle/linewidth/alpha/marker settings, smoothing, axis limits/scales/ticks, grid, spines, legend placement, and export settings.
+Read `references/config-interface.md` before writing or substantially modifying plotting code. Expose the controls relevant to the requested chart and avoid promising unsupported controls in the bundled script.
 
 ## Log Handling Notes
 
@@ -81,4 +83,4 @@ Hugging Face `trainer_state.json` usually stores useful entries under `log_histo
 
 W&B CSV exports often use slash-separated names such as `train/loss` and `eval/loss`; the script normalizes common separators during key detection.
 
-When automatic key detection fails, inspect the headers and either rerun with the closest supported `--x` value or patch the candidate key lists in the script for that task.
+When automatic key detection fails, inspect the headers and use `--x` or `data.*_key` to name actual columns; choose `--x index` only if record index has the intended experimental meaning.

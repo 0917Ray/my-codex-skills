@@ -9,13 +9,13 @@ Use this skill to turn an English research paper into a Chinese explanation that
 
 ## Deliverable and math syntax
 
-- Write the complete six-part analysis to a UTF-8 `.md` file. Use the user's requested path when given; otherwise choose a descriptive paper-based filename in the current task's deliverables directory and link the saved file in the reply. For multiple papers, use a separate `.md` file for each unless the user requests a combined review.
+- For a full paper analysis, write the result to a UTF-8 `.md` file. Use the requested path when given; otherwise choose a descriptive paper-based filename in the current task's deliverables directory and link it in the reply. For a narrow follow-up question, answer in the conversation unless the user asks to update or save the document. For multiple papers, use separate files unless the user requests a combined review.
 - Use `$...$` for inline mathematics, such as `$\mathcal{L}_{\mathrm{total}}$`, and `$$...$$` for display mathematics, with each `$$` on its own line. Do not use `\(...\)` or `\[...\]` as math delimiters anywhere in the delivered Markdown.
 - Keep display equations outside Markdown tables and code fences so Markdown math renderers can interpret them. Keep the paper's own equation numbering in the surrounding text when relevant.
 
 ## Core standard: evidence before fluency
 
-- Read the paper that is actually available. Prefer the complete PDF, including method, experiments, appendix, supplementary material, tables, figures, and captions when present. Do not treat an abstract or a search snippet as the paper.
+- Read the paper that is actually available. For a full analysis, use the complete PDF, including relevant appendix, supplementary material, tables, figures, and captions. For a focused question, inspect the relevant sections and evidence, and state any resulting coverage limit. Do not treat an abstract or a search snippet as the full paper.
 - If the full paper is unavailable or pages are unreadable, state the coverage and request the missing file when it is needed for a full audit. Any interim summary must be labeled as partial.
 - Keep the paper's terminology and method names in English when that prevents ambiguity. Explain a technical term in Chinese the first time it appears.
 - Separate these statements explicitly:
@@ -30,21 +30,22 @@ Use this skill to turn an English research paper into a Chinese explanation that
 
 ## Reading workflow
 
+Use the full sequence for a complete review. For a focused question, apply only the steps needed to establish its answer and evidence boundary.
+
 1. **Inventory the source.** Record title, venue/year if available, task, domain, paper type (method, analysis, theory, benchmark, or survey), and which sections or pages are inaccessible. Note whether the file is text-based or scanned.
 2. **Build a claim map.** For each central claim, record the claim, its evidence location, evidence status, and the strongest caveat. This prevents abstract-level summaries from replacing the actual results.
 3. **Reconstruct the problem.** Identify the input, output, training signal, evaluation protocol, source/target domains if applicable, label assumptions, and what existing bottleneck motivates the work.
 4. **Reconstruct the method.** Follow the data from input to output. Transcribe only equations that appear in the paper, define every symbol, state the optimization target, and connect each loss or module to the problem it addresses. Keep training and inference separate.
 5. **Audit the experiments.** Extract datasets, scale, splits, domains/classes, model and training settings, metrics and their direction, baselines, seeds or standard deviations, ablations, oracle/upper-bound settings, and qualitative results. Check whether the comparison is fair and whether the reported experiment tests the stated hypothesis.
 6. **Test the conclusion boundary.** Compare each conclusion with its evidence. Identify assumptions, failure cases, computational cost, sensitivity, missing controls, and what the experimental coverage cannot establish.
-7. **Write the `.md` file in the required structure below.** Put uncertainty next to the affected statement rather than hiding it in a generic disclaimer. Check the saved file's math delimiters before handing it over.
+7. **Write the analysis in a structure suited to the paper and question.** Put uncertainty next to the affected statement rather than hiding it in a generic disclaimer. If saving Markdown, check its math delimiters before handing it over.
 
 ## Conversation follow-up and document revision
 
-After the initial `.md` analysis is delivered, keep track of the user's
-questions and the answers given during the same paper-reading conversation.
-When the user clearly signals that the discussion is finished, such as “好的，
-对话结束”, “就到这里”, or an equivalent request to close the discussion,
-perform a final document revision before replying:
+After an initial `.md` analysis, answer follow-up questions without modifying
+the file by default. An end-of-discussion signal closes the conversation; it
+does not authorize a file edit. When the user explicitly requests a revision
+or asks to incorporate the discussion into the document:
 
 1. Review the full conversation after the original `.md` was written. Extract
    only questions, clarifications, corrections, and explanations that improve
@@ -52,29 +53,21 @@ perform a final document revision before replying:
 2. For details that belong to an existing topic, revise the relevant section
    or table in place. Prefer a precise addition near the statement it explains
    over repeating the entire conversation.
-3. For paper-relevant material that does not fit the six required sections,
-   append a section titled `### 7. 多轮对话补充` after the existing conclusion. Group
-   related questions, state the clarified answer, and include the paper
-   locator and evidence-status label when applicable.
+3. For relevant material that does not fit an existing section, add a concise
+   follow-up section. Group related points and cite paper locations and
+   evidence status when applicable; do not append a compulsory seventh section.
 4. Do not add conversational pleasantries, questions that were abandoned, or
    information unrelated to understanding or evaluating the paper. Do not
    silently overwrite a prior claim: if the dialogue exposes an error or a
    disagreement, correct it explicitly and identify the reason and source.
 5. Preserve the evidence boundary. A response generated during discussion is
-   not evidence by itself; label it as `作者明确陈述`, `实验直接支持`,
+   not evidence by itself; label it as `论文明确陈述`, `实验直接支持`,
    `作者推测`, `基于实验的合理推断`, or `未报告/无法核实` as appropriate,
    and cite the paper section, equation, table, figure, appendix, or page when
    available. If the conversation introduced a useful interpretation that the
    paper does not establish, keep it explicitly marked as an inference.
-6. Save the revised `.md` to the same path, retaining the original six-section
-   structure and math-delimiter rules. Report briefly which sections were
-   updated and whether a `多轮对话补充` section was added.
-
-Do not revise the file after every ordinary follow-up question. Once the
-initial `.md` exists and this paper-reading follow-up is active, an explicit
-or unambiguous end-of-discussion signal is sufficient to trigger the revision;
-do not ask for a second confirmation. Ask for clarification only when no
-initial document exists or the user's intent is genuinely ambiguous.
+6. Save to the requested path (or update the original when requested), retain
+   the math-delimiter rules, and briefly report what changed.
 
 ## Method reconstruction rules
 
@@ -98,9 +91,9 @@ Use the exact equation number when available. Explain an equation in words after
 - If two locations in the paper disagree, show both values and locations, say whether the difference may be rounding or a real inconsistency, and do not silently choose one.
 - If the paper omits a requested item, write `未报告` or `不适用`; do not fill it from common practice or another paper.
 
-## Required response structure
+## Response structure
 
-Answer in Chinese using the following headings. Keep the order unless the user explicitly asks for a different format.
+Answer in Chinese. For a full method-paper review, the sections below are a useful default, not a compulsory template. Combine or omit sections that do not serve the question or paper type (e.g. no artificial ablation table for a survey or theory paper). For a targeted question, answer it directly with evidence and limits, without generating a full review. Retain the distinction between motivation, method, actual results, and unsupported interpretation.
 
 ### 1. 一句话核心结论
 
@@ -122,7 +115,7 @@ Walk through the complete method and data flow. Preserve core equations using `$
 
 #### R - Result
 
-Use separate subsections for:
+When present and relevant, distinguish:
 
 - actual method results;
 - strongest baseline;
@@ -134,13 +127,13 @@ For every important number give the table/figure/section locator and identify wh
 
 ### 3. 独立实验总结
 
-Use tables rather than burying settings in prose. At minimum include:
+Use tables when they make multiple experiments or settings easier to compare. For a full empirical audit, cover:
 
 1. an experiment setup table with task, dataset and scale, source/target domains and class split when relevant, model/training settings, metric direction, and baselines;
 2. a results table with the paper's main results, standard deviations or intervals, comparable relative improvement when it can be calculated, and the locator;
 3. an ablation table with the removed/changed component, result, and the conclusion it can or cannot support.
 
-For tasks without domains, class splits, or ablations, write `不适用` or `未报告`. Keep oracle, upper-bound, and qualitative rows visibly separate from ordinary baseline rows.
+Do not add empty columns or tables for inapplicable domains, class splits, or ablations. State `未报告` for missing information that matters to the conclusion. Keep oracle, upper-bound, and qualitative results separate from ordinary baselines.
 
 ### 4. 论文的观察、假设和推导链
 
@@ -165,16 +158,18 @@ Write one coherent paragraph covering the background, core idea, method, and res
 
 ## Final quality check
 
-Before finishing, verify that:
+Before finishing a full review, verify that:
 
 - the one-sentence conclusion agrees with the detailed results;
 - every first-use technical term is briefly explained;
 - contribution, related work, baseline, ablation, oracle, and visualization are not conflated;
 - equations and symbols came from the paper or are clearly marked as inference;
 - key numbers have a source locator, metric direction, and uncertainty information;
-- the experiment table answers the requested fields or explicitly says `未报告/不适用`;
+- the experiment discussion answers relevant requested fields and marks material omissions `未报告`;
 - claims are tagged when they are author speculation, reasonable inference, or direct experimental support;
 - discrepancies across sections are called out;
 - the limitations section states what the experiments cannot establish.
-- the complete answer was saved as a `.md` file, display math uses standalone `$$` delimiters, and no `\(...\)` or `\[...\]` math delimiters remain.
-- if a conversation-end signal was given after follow-up questions, the `.md` was revised from the full dialogue, existing sections were updated where appropriate, and any otherwise-unplaced paper-relevant material was added under `### 7. 多轮对话补充` with evidence labels and locators.
+- when a full review or requested revision is saved as `.md`, display math uses standalone `$$` delimiters, and no `\(...\)` or `\[...\]` math delimiters remain;
+- a follow-up conversation has not modified the document without an explicit revision request.
+
+For a focused answer, apply only the checks relevant to its claims; do not force the full-review sections or tables.
