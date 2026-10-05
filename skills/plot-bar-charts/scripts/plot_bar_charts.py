@@ -34,6 +34,22 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 
+def COLORS() -> dict[str, str]:
+    return {
+        # Preferred color
+        "blue": "#5B7CA7",
+        "green": "#5E887E",
+        "red": "#BA6580",
+        "purple": "#75668A",
+
+        # Optional color
+        "orange": "#C48755",
+        "cyan": "#5C8FA3",
+        "olive": "#7F8956",
+        "brown": "#8A6A58",
+    }
+
+
 DEFAULT_CONFIG: dict[str, Any] = {
     "data": {
         "input": None,
@@ -63,14 +79,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "legend_size": 10.5,
     },
     "colors": {
-        "blue": "#516480",
-        "green": "#4F7C65",
-        "red": "#A75B73",
-        "purple": "#75668A",
-        "orange": "#C48755",
-        "cyan": "#5C8FA3",
-        "olive": "#7F8956",
-        "brown": "#8A6A58",
+        **COLORS(),
         "dark": "#303236",
         "axis": "#3A3D42",
         "grid": "#DADDE2",
@@ -84,17 +93,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "edge_alpha": 0.95,
         "edge_width": 2.0,
         "color_mode": "highlight",
-        "highlight_color": "#A75B73",
-        "palette": [
-            "#516480",
-            "#4F7C65",
-            "#A75B73",
-            "#75668A",
-            "#5C8FA3",
-            "#C48755",
-            "#7F8956",
-            "#8A6A58",
-        ],
+        "highlight_color": COLORS()["red"],
+        "palette": list(COLORS().values()),
     },
     "errorbar": {
         "enabled": True,

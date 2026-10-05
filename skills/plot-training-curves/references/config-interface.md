@@ -19,9 +19,9 @@ When generating curves from custom training or analysis code, persist the plotte
   "plot": {"mode": "all-separate", "smooth": 7, "title": null, "titles": {"training-loss": "(a) Training Loss", "validation-loss": "(b) Validation Loss", "train-vs-val": "(c) Training vs. Validation Loss", "lr-schedule": "(d) Learning Rate Schedule"}},
   "figure": {"figsize": [7.2, 4.6], "panel_figsize": [7.4, 5.8], "dpi": 300, "spine_width": 2.5, "transparent": true},
   "series": {
-    "train_loss": {"color": "#4F7C65", "linewidth": 2.0, "line_alpha": 0.92, "marker": "s", "marker_size": 5.0},
-    "val_loss": {"color": "#A75B73", "linewidth": 2.0, "line_alpha": 0.92, "marker": "^", "marker_size": 5.2},
-    "lr": {"color": "#516480", "linewidth": 2.0, "line_alpha": 0.92, "marker": "D", "marker_size": 4.8}
+    "train_loss": {"color": "#5E887E", "linewidth": 2.0, "line_alpha": 0.92, "marker": "s", "marker_size": 5.0},
+    "val_loss": {"color": "#BA6580", "linewidth": 2.0, "line_alpha": 0.92, "marker": "^", "marker_size": 5.2},
+    "lr": {"color": "#5B7CA7", "linewidth": 2.0, "line_alpha": 0.92, "marker": "D", "marker_size": 4.8}
   },
   "axis": {"xlabel": "Step", "x_integer": true, "xlim": null, "ylim": null, "grid": true, "target_x_ticks": 9, "target_y_ticks": 7},
   "legend": {"enabled": true, "loc": "best"},

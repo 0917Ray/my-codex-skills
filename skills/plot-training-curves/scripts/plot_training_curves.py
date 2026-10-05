@@ -73,6 +73,22 @@ X_KEYS = [
 ]
 
 
+def COLORS() -> dict[str, str]:
+    return {
+        # Preferred color
+        "blue": "#5B7CA7",
+        "green": "#5E887E",
+        "red": "#BA6580",
+        "purple": "#75668A",
+
+        # Optional color
+        "orange": "#C48755",
+        "cyan": "#5C8FA3",
+        "olive": "#7F8956",
+        "brown": "#8A6A58",
+    }
+
+
 @dataclass
 class Series:
     x: np.ndarray
@@ -93,13 +109,13 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "figure": {"figsize": [7.2, 4.6], "panel_figsize": [7.4, 5.8], "dpi": 300,
                "spine_width": 2.5, "transparent": True},
     "series": {
-        "train_loss": {"color": "#4F7C65", "linewidth": 2.0, "line_alpha": 0.92,
+        "train_loss": {"color": COLORS()["green"], "linewidth": 2.0, "line_alpha": 0.92,
                        "marker": "s", "marker_size": 5.0, "marker_face_alpha": 0.6,
                        "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
-        "val_loss": {"color": "#A75B73", "linewidth": 2.0, "line_alpha": 0.92,
+        "val_loss": {"color": COLORS()["red"], "linewidth": 2.0, "line_alpha": 0.92,
                      "marker": "^", "marker_size": 5.2, "marker_face_alpha": 0.6,
                      "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
-        "lr": {"color": "#516480", "linewidth": 2.0, "line_alpha": 0.92,
+        "lr": {"color": COLORS()["blue"], "linewidth": 2.0, "line_alpha": 0.92,
                "marker": "D", "marker_size": 4.8, "marker_face_alpha": 0.6,
                "marker_edge_alpha": 0.95, "marker_edge_width": 1.35},
     },
@@ -138,19 +154,6 @@ def load_config(path: Path | None) -> dict[str, Any]:
     return result
 
 
-def colors() -> dict[str, str]:
-    return {
-        "blue": "#516480",
-        "green": "#4F7C65",
-        "red": "#A75B73",
-        "purple": "#75668A",
-        "orange": "#C48755",
-        "cyan": "#5C8FA3",
-        "olive": "#7F8956",
-        "brown": "#8A6A58",
-    }
-
-
 def neutrals() -> dict[str, str]:
     return {
         "dark": "#303236",
@@ -174,7 +177,7 @@ def set_line_plot_style(
     if config is not None:
         figure_size = tuple(figure_size)
         spine_width = config["figure"]["spine_width"]
-    c = colors()
+    c = COLORS()
     n = neutrals()
 
     mpl.rcParams.update(
@@ -258,7 +261,7 @@ def set_line_plot_style(
 
 
 def line_colors() -> list[str]:
-    c = colors()
+    c = COLORS()
     return [
         c["blue"],
         c["red"],
@@ -606,7 +609,7 @@ def plot_loss_series(
     validation: bool = False,
     config: dict[str, Any] | None = None,
 ) -> None:
-    c = colors()
+    c = COLORS()
     color = c["red"] if validation else c["green"]
     style = config["series"]["val_loss" if validation else "train_loss"] if config else None
     if style:
@@ -648,7 +651,7 @@ def plot_loss_series(
 
 def plot_lr_series(ax: plt.Axes, series: Series, label: str = "Learning rate", config: dict[str, Any] | None = None) -> None:
     style = config["series"]["lr"] if config else None
-    color = style["color"] if style else colors()["blue"]
+    color = style["color"] if style else COLORS()["blue"]
     plot_line_with_auto_marker(
         ax,
         series.x,
