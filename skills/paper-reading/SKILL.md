@@ -12,6 +12,7 @@ Use this skill to turn an English research paper into a Chinese explanation that
 - For a full paper analysis, write the result to a UTF-8 `.md` file. Use the requested path when given; otherwise choose a descriptive paper-based filename in the current task's deliverables directory and link it in the reply. For a narrow follow-up question, answer in the conversation unless the user asks to update or save the document. For multiple papers, use separate files unless the user requests a combined review.
 - Use `$...$` for inline mathematics, such as `$\mathcal{L}_{\mathrm{total}}$`, and `$$...$$` for display mathematics, with each `$$` on its own line. Do not use `\(...\)` or `\[...\]` as math delimiters anywhere in the delivered Markdown.
 - Keep display equations outside Markdown tables and code fences so Markdown math renderers can interpret them. Keep the paper's own equation numbering in the surrounding text when relevant.
+- When bold Markdown is adjacent to Chinese prose, leave one ASCII space outside each adjacent `**` boundary. Write `这是 **online TTA** 方法`, not `这是**online TTA**方法` or `**online TTA**是`; do not add spaces inside the bold markers.
 
 ## Core standard: evidence before fluency
 
@@ -170,6 +171,7 @@ Before finishing a full review, verify that:
 - discrepancies across sections are called out;
 - the limitations section states what the experiments cannot establish.
 - when a full review or requested revision is saved as `.md`, display math uses standalone `$$` delimiters, and no `\(...\)` or `\[...\]` math delimiters remain;
+- in saved Markdown, bold spans do not touch adjacent Chinese characters; required ASCII spaces appear outside the `**` markers;
 - a follow-up conversation has not modified the document without an explicit revision request.
 
 For a focused answer, apply only the checks relevant to its claims; do not force the full-review sections or tables.
