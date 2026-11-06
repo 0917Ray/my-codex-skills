@@ -58,6 +58,64 @@
 
 内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带两份按需读取的参考文档和界面元数据，不需要辅助脚本。
 
+#### 典型项目架构示例
+
+以一个包含基线、参数扫描和多个随机种子的机器学习研究项目为例，依照该 skill 可以组织成：
+
+```text
+research-project/
+├── README.md                         # 项目地图与最短启动路径
+├── .gitignore
+├── pyproject.toml                    # 依赖与实际存在的包信息
+├── configs/
+│   ├── evaluation/
+│   │   ├── baseline.yaml
+│   │   ├── method.yaml               # 标准实验
+│   │   ├── method_quick.yaml         # 小规模验证，复用同一实现
+│   │   └── method_sweep.yaml         # 参数扫描与随机种子
+│   └── visualization/
+│       └── method_sweep.json         # 展示哪些系列、使用什么图表样式
+├── guide/
+│   ├── preparation.md                # 环境、数据与权重准备
+│   └── method_sweep.md               # 协议、验证/正式命令、输出说明
+├── scripts/
+│   ├── evaluate_method.py            # 多份 method 配置共用的执行入口
+│   └── plot_method_sweep.py          # 无需重跑评测即可重新绘图
+├── src/research_project/             # 有共享实现需求时再引入
+├── tests/                            # 有实际、有效的检查时再创建
+├── data/                             # 本地输入，通常不进入 Git
+│   ├── downloads/
+│   └── raw/<dataset>/
+├── models/                           # 本地模型权重，通常不进入 Git
+├── runs/                             # 生成的实验产物，通常不进入 Git
+│   └── method_sweep/
+│       └── idea_selection/           # 实验变体
+│           └── run_20261106_120000/  # 每次执行单独保存，避免覆盖
+│               ├── resolved_config.json
+│               ├── run_20261106_120000.log
+│               ├── seed_11/
+│               │   ├── results.json
+│               │   └── results.csv
+│               ├── seed_42/          # 与 seed_11 相同的结果结构
+│               └── summary/         # 完成后的跨 seed 汇总
+│                   ├── average_results.csv
+│                   ├── average_results.md
+│                   └── plots/
+│                       ├── comparison_data.csv
+│                       ├── comparison_config.json
+│                       ├── plot_comparison.py
+│                       ├── comparison.png
+│                       └── comparison.pdf
+├── Idea/                             # 可选：带日期的研究假设与计划
+└── conversation_w_GPT/               # 可选：实现说明与历史调查记录
+```
+
+参数扫描的文件链是 `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`。各 seed 单独保存结果，汇总时明确聚合方式和不确定性的统计口径；图表目录保留数据、配置与可运行的绘图代码，调整图表样式时无需重复评测。
+
+这个目录树用于示意。小项目可以从 README、一个脚本、一份配置和一个输出目录开始，`src/`、`tests/` 与研究笔记按实际内容添加。小规模验证使用独立临时输出；代码、配置、指南和协议元数据进入 Git，大体积输入与运行产物通常留在本地，私人笔记的忽略方式由项目约定决定。
+
+调用示例：“请用 $research-project-architecture 组织一个包含基线和多 seed 参数扫描的研究项目，提供小规模验证说明、结果汇总，以及可独立重绘的图表产物包。”
+
 ## 效果示例
 
 每张预览图都可以点击打开对应的 PDF 文件。
