@@ -20,6 +20,27 @@ This depth is specific to that layout. After moving code into a package, use an 
 
 Log the resolved settings after all overrides, the command, device/task assignment, and relevant software/code version when available. For an uncommitted tree, a commit alone does not fully identify the executed code; record its dirty state or a suitable snapshot rather than implying otherwise. Do not serialize secrets from environment variables into provenance records.
 
+## Sequential multi-seed experiments
+
+When writing stochastic training/evaluation scripts, support one experiment invocation with an ordered seed list in YAML. For example, adapt these illustrative keys to the project's implemented interface:
+
+```yaml
+seeds: [11, 42, 123]
+output_dir: runs/method_sweep
+```
+
+Validate a nonempty list of distinct integer seeds within the active libraries' supported range, rejecting booleans and duplicates. Execute seeds sequentially in the configured order by default; do not require users to edit the config or run a shell command separately for every seed. If existing tooling also accepts a single `seed`, define its precedence or reject conflicting `seed`/`seeds` inputs explicitly.
+
+Before each seed, reset the random generators used by the project (e.g. Python, NumPy, framework CPU/GPU RNGs, sampler/DataLoader workers) and recreate mutable experiment state such as model initialization, optimizer, scheduler, scaler, and metric accumulators. Fresh processes per seed or a correctly isolated in-process loop are both valid. An explicitly requested continuation protocol is different from independent seed repeats. Record determinism settings and known nondeterministic operations rather than promising identical results on every device.
+
+For each seed, run its required experiment tasks, record its actual seed and protocol, and persist completed records under `seed_<seed>/` before advancing to the next seed. Export `results.json`, `results.csv`, and `results.md` from the same records. Log the current seed and its position, such as `[INFO] Seed 42 (2/3)`, and keep runtime/failure context attributable to that seed.
+
+After the required seeds finish, collect their saved results and group by every non-seed comparison dimension, such as method, model, dataset/split, hyperparameter setting, and metric. Compute cross-seed statistics only within comparable groups; never average different sweep settings or treat batches/samples as independent seeds. Include per-seed values and seed identities, expected/completed seed counts, mean, explicitly defined standard deviation, metric units, and relevant sample counts. For sample standard deviation (`ddof=1`), a single completed seed has undefined uncertainty; encode it as null/blank and explain it in Markdown rather than inventing zero.
+
+Write the collected individual records as `summary/results.{json,csv,md}` and aggregated statistics as `summary/average_results.{json,csv,md}`. The brace notation denotes three separate files for each basename. Generate all formats from one canonical record/statistics collection; additional formats are welcome when useful. Keep machine-readable values unrounded and format human-readable tables for inspection.
+
+Keep completed outputs if a seed fails. State whether the runner stops or continues, list failed/missing seeds, and never label a partial collection as a complete experiment. A deliberately produced partial summary must disclose its actual seed count for each group and remain distinguishable from the final summary. An optional aggregation-only command may rebuild summaries from compatible saved seed records without retraining; it must not silently include unrelated executions.
+
 ## Training progress and logging
 
 Use `tqdm` for training epochs or batches when progress is meaningful. Show the current epoch/step, total work when known, and a small set of useful metrics through the description/postfix; do not replace it with per-batch print statements. Keep refresh frequency reasonable. Disable animated bars when output is redirected or non-interactive, and use concise periodic log updates instead. In distributed or parallel execution, let the main process own the terminal progress display.
@@ -42,12 +63,18 @@ runs/<workflow>/
         ├── run_<timestamp>.log
         ├── seed_11/
         │   ├── results.json
-        │   └── results.csv
+        │   ├── results.csv
+        │   └── results.md
         ├── seed_42/
+        │   └── ...
+        ├── seed_123/
         │   └── ...
         └── summary/               # Final complete aggregation
             ├── results.json
             ├── results.csv
+            ├── results.md
+            ├── average_results.json
+            ├── average_results.csv
             ├── average_results.md
             └── plots/
 ```
@@ -75,7 +102,7 @@ Choose fields that make each record interpretable without shell history:
 
 Do not invent inapplicable fields. Reuse a resolved-config file for bulky shared context, but keep its reference unambiguous. Baseline and proposed-method results should use identifiable, compatible protocols; do not hide a protocol change in an aggregate table.
 
-Generate formats from one canonical collection of records. JSON preserves types and nested values, CSV supports tabular analysis, and Markdown supports inspection/reporting; provide the formats with real consumers rather than maintaining three separate computations. Retain full precision in machine-readable data and round only display values.
+Generate formats from one canonical collection of records. JSON preserves types and nested values, CSV supports tabular analysis, and Markdown supports inspection/reporting. Multi-seed workflows provide all three for individual and aggregate results as specified above; simpler workflows can use the formats their consumers need. Do not maintain three separate computations. Retain full precision in machine-readable data and round only display values.
 
 Specify which records are aggregated and which are excluded or missing. Record seed count, sample/task unit, and whether aggregation is weighted. Name the uncertainty measure: population/sample standard deviation, standard error, or confidence interval. Do not silently equate these or report uncertainty from an insufficient number of runs as measured zero. Preserve per-seed data so aggregation can be checked later.
 
@@ -107,3 +134,5 @@ plots/
 Check meaningful behavior for what changed: an implemented entrypoint loads, invalid configs fail early, an explicit CLI override wins without editing the config, paths work under the documented base, distinct executions remain isolated, and smoke outputs match the documented contract. When changing progress/logging, check that known non-actionable warnings reach the file but not the console, actionable warnings/failures remain visible with suitable prefixes, and redirected output has no animated progress artifacts. Check incremental/partial behavior when changing long-running orchestration, aggregation on known small records when changing statistics, and both automatic post-run plotting and independent redraw when changing plot orchestration or bundles.
 
 Use existing project checks where possible. Add automated tests for consequential parsing, aggregation, resume, or orchestration logic when warranted; do not add tests merely to assert directory names or Markdown headings. If required data, dependencies, or hardware are missing, perform available static checks and state which runtime behavior remains unverified.
+
+For implemented multi-seed orchestration, use a bounded fixture or small run to check configured seed order, independent initialization, separate incremental outputs, and matching records across JSON/CSV/Markdown. Check aggregation against a small known set, including separate sweep groups, a missing/failed seed, and the single-seed uncertainty case. These checks verify generated project code when that code is implemented; the illustrative YAML here does not itself run an experiment.

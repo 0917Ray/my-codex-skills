@@ -58,6 +58,8 @@ It emphasizes a layout proportionate to the project, portable paths, validated c
 
 New configs preferably use `.yaml`. Training progress uses `tqdm` when suitable, non-actionable warnings go to run logs, and terminal status messages use prefixes such as `[INFO]`, `[SUCCESS]`, `[WARNING]`, and `[FAIL]`. Plotting normally runs automatically after training/evaluation completes and can also run independently from saved data and an editable plot config.
 
+A single experiment invocation can run an ordered YAML `seeds` list sequentially, save each seed independently, then export all individual results and cross-seed statistics in Markdown, JSON, and CSV.
+
 The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes two focused references and UI metadata; it does not need a helper script.
 
 ## Examples
@@ -184,9 +186,15 @@ research-project/
 │               ├── run_20261106_120000.log
 │               ├── seed_11/
 │               │   ├── results.json
-│               │   └── results.csv
+│               │   ├── results.csv
+│               │   └── results.md
 │               ├── seed_42/          # Same per-seed result structure
+│               ├── seed_123/
 │               └── summary/         # Completed cross-seed aggregation
+│                   ├── results.json
+│                   ├── results.csv
+│                   ├── results.md
+│                   ├── average_results.json
 │                   ├── average_results.csv
 │                   ├── average_results.md
 │                   └── plots/
@@ -197,6 +205,13 @@ research-project/
 │                       └── comparison.pdf
 ├── Idea/                             # Optional dated hypotheses and plans
 └── conversation_w_GPT/               # Optional implementation/history notes
+```
+
+For example, the experiment config can declare the seed order below. The generated runner processes each seed in turn and writes separate `seed_<seed>/results.{md,json,csv}` files. It then collects the individual records into `summary/results.{md,json,csv}` and saves grouped means and explicitly defined standard deviations in `summary/average_results.{md,json,csv}`; each brace expression represents three files. These keys illustrate the interface the project code should implement.
+
+```yaml
+seeds: [11, 42, 123]
+output_dir: runs/method_sweep
 ```
 
 The sweep follows `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`. Each seed retains its own results; the summary records aggregation and uncertainty definitions. The plot bundle keeps data, config, and runnable plotting code together so a figure can be restyled without repeating evaluation.

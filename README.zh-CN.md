@@ -58,6 +58,8 @@
 
 新增配置优先使用 `.yaml`；训练进度在合适时使用 `tqdm`，不重要的警告写入运行日志，终端状态使用 `[INFO]`、`[SUCCESS]`、`[WARNING]`、`[FAIL]` 等前缀。绘图通常在训练 / 评测完成后自动执行，也支持修改独立绘图配置后直接使用已保存的数据重绘。
 
+一次实验调用可按 YAML 中的 `seeds` 列表依次运行多个随机种子，分别保存结果，最后以 Markdown、JSON、CSV 同时记录全部单次结果与跨 seed 统计。
+
 内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带两份按需读取的参考文档和界面元数据，不需要辅助脚本。
 
 ## 效果示例
@@ -180,9 +182,15 @@ research-project/
 │               ├── run_20261106_120000.log
 │               ├── seed_11/
 │               │   ├── results.json
-│               │   └── results.csv
+│               │   ├── results.csv
+│               │   └── results.md
 │               ├── seed_42/          # 与 seed_11 相同的结果结构
+│               ├── seed_123/
 │               └── summary/         # 完成后的跨 seed 汇总
+│                   ├── results.json
+│                   ├── results.csv
+│                   ├── results.md
+│                   ├── average_results.json
 │                   ├── average_results.csv
 │                   ├── average_results.md
 │                   └── plots/
@@ -193,6 +201,13 @@ research-project/
 │                       └── comparison.pdf
 ├── Idea/                             # 可选：带日期的研究假设与计划
 └── conversation_w_GPT/               # 可选：实现说明与历史调查记录
+```
+
+例如，实验配置可声明以下 seed 顺序。生成的执行脚本依次测试各 seed，分别写入 `seed_<seed>/results.{md,json,csv}`；完成后，将全部单次记录保存为 `summary/results.{md,json,csv}`，并将按实验条件分组的均值及明确定义的标准差保存为 `summary/average_results.{md,json,csv}`。花括号表示分别生成三种格式的文件；以下字段是项目代码需要实现的配置接口示意。
+
+```yaml
+seeds: [11, 42, 123]
+output_dir: runs/method_sweep
 ```
 
 参数扫描的文件链是 `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`。各 seed 单独保存结果，汇总时明确聚合方式和不确定性的统计口径；图表目录保留数据、配置与可运行的绘图代码，调整图表样式时无需重复评测。
