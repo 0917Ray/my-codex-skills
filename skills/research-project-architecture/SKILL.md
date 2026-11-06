@@ -31,7 +31,7 @@ Use this skill to arrange files while implementing research code, or to review a
 ### Separate stable instructions from implementation and assets
 
 - `README.md` is the project map and shortest startup path: goal, installation/preparation links, minimal command, protocol summary, and verified baseline when available. Put detailed task-specific instructions in `guide/` or the repository's equivalent.
-- `configs/` declares run intent. Separate experiment collection settings from visualization settings. Use distinct named configurations for standard runs, quick checks, and sweeps when those workflows exist.
+- `configs/` declares run intent. Prefer `.yaml` for new experiment and plotting configs; retain an existing format when required by the consumer or established tooling. Separate experiment collection settings from visualization settings. Use distinct named configurations for standard runs, quick checks, and sweeps when those workflows exist.
 - `scripts/` contains clearly named executable entrypoints such as `evaluate_<method>.py` or `plot_<experiment>.py`. A few self-contained scripts are reasonable; extract shared code into an actual package when reuse or complexity warrants it.
 - Keep input data, checkpoints, run outputs, untested ideas, and process notes distinct from executable code and stable guides. Preserve upstream dataset identifiers and version the mappings that interpret them.
 
@@ -42,13 +42,19 @@ Use this skill to arrange files while implementing research code, or to review a
 - Keep run identifiers safe as path components. Separate incompatible reruns so stable filenames cannot silently mix or overwrite distinct experiments.
 - Log the final resolved configuration and task assignment. Preserve enough context in results to explain the method, inputs, seed, sample scope, hyperparameters, metrics, and runtime without shell history.
 
+### Keep training progress and terminal output readable
+
+- Use `tqdm` for training progress when suitable, showing the epoch/step and useful metrics without printing every batch. Disable animated output in non-interactive runs and avoid competing progress bars from parallel workers.
+- Route known non-actionable warnings and verbose diagnostics to the run's log file instead of the terminal. Keep actionable warnings and failures visible; do not suppress warnings globally or discard their diagnostic context.
+- Prefix status messages appropriately, for example `[INFO]`, `[SUCCESS]`, `[WARNING]`, and `[FAIL]`. Coordinate console logging with progress bars so messages do not corrupt the display. See the progress and logging contract in [references/experiment-contracts.md](references/experiment-contracts.md).
+
 ### Make results auditable and reusable
 
 - Match output hierarchy to actual units: workflow, optional variant, distinct execution, optional seed, then aggregate. Omit unnecessary levels; separate smoke output from formal output.
 - Save completed task results incrementally for long runs. Generate machine-readable results and human-readable summaries from the same records; use JSON, CSV, and Markdown where their consumers need them.
 - Keep timestamped logs and stable result names inside an isolated execution. Distinguish partial results from completed summaries; an existing `summary/` directory alone does not prove completion.
 - Record the aggregation population, number of seeds/tasks/samples, metric units, and uncertainty definition. Do not copy the source project's population-standard-deviation choice into every experiment.
-- When generating research figures, save full-precision chart-ready data, plot config, runnable plotting code, and final images together. Redrawing from that bundle must not rerun the experiment; include required local helpers or document dependencies.
+- When a training/evaluation workflow produces research figures, normally run plotting automatically after successful computation and result persistence. Also expose a separate plotting entrypoint that reads saved data and an editable plot config, so changing presentation parameters does not restart training/evaluation. Save full-precision chart-ready data, plot config, runnable plotting code, and final images together; include required local helpers or document dependencies.
 
 ### Preserve research and version-control boundaries
 

@@ -56,6 +56,8 @@
 
 该 skill 强调按项目规模选择目录层级、统一路径解析、配置校验与临时 CLI 覆盖、运行隔离与增量保存、明确统计口径，以及保存数据 / 配置 / 代码的重绘包。同时区分稳定指南与研究假设，并明确大体积资产和私人笔记的 Git 边界。
 
+新增配置优先使用 `.yaml`；训练进度在合适时使用 `tqdm`，不重要的警告写入运行日志，终端状态使用 `[INFO]`、`[SUCCESS]`、`[WARNING]`、`[FAIL]` 等前缀。绘图通常在训练 / 评测完成后自动执行，也支持修改独立绘图配置后直接使用已保存的数据重绘。
+
 内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带两份按需读取的参考文档和界面元数据，不需要辅助脚本。
 
 ## 效果示例
@@ -157,7 +159,7 @@ research-project/
 │   │   ├── method_quick.yaml         # 小规模验证，复用同一实现
 │   │   └── method_sweep.yaml         # 参数扫描与随机种子
 │   └── visualization/
-│       └── method_sweep.json         # 展示哪些系列、使用什么图表样式
+│       └── method_sweep.yaml         # 展示哪些系列、使用什么图表样式
 ├── guide/
 │   ├── preparation.md                # 环境、数据与权重准备
 │   └── method_sweep.md               # 协议、验证/正式命令、输出说明
@@ -174,7 +176,7 @@ research-project/
 │   └── method_sweep/
 │       └── idea_selection/           # 实验变体
 │           └── run_20261106_120000/  # 每次执行单独保存，避免覆盖
-│               ├── resolved_config.json
+│               ├── resolved_config.yaml
 │               ├── run_20261106_120000.log
 │               ├── seed_11/
 │               │   ├── results.json
@@ -185,7 +187,7 @@ research-project/
 │                   ├── average_results.md
 │                   └── plots/
 │                       ├── comparison_data.csv
-│                       ├── comparison_config.json
+│                       ├── comparison_config.yaml
 │                       ├── plot_comparison.py
 │                       ├── comparison.png
 │                       └── comparison.pdf

@@ -56,6 +56,8 @@ Organize research and machine-learning repositories while scaffolding projects, 
 
 It emphasizes a layout proportionate to the project, portable paths, validated configs and temporary CLI overrides, isolated runs and incremental results, explicit statistical definitions, and independent replot bundles. It also separates stable guides from research hypotheses and defines Git boundaries for large assets and private notes.
 
+New configs preferably use `.yaml`. Training progress uses `tqdm` when suitable, non-actionable warnings go to run logs, and terminal status messages use prefixes such as `[INFO]`, `[SUCCESS]`, `[WARNING]`, and `[FAIL]`. Plotting normally runs automatically after training/evaluation completes and can also run independently from saved data and an editable plot config.
+
 The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes two focused references and UI metadata; it does not need a helper script.
 
 ## Examples
@@ -161,7 +163,7 @@ research-project/
 │   │   ├── method_quick.yaml         # Small smoke run, same implementation
 │   │   └── method_sweep.yaml         # Parameter sweep and seeds
 │   └── visualization/
-│       └── method_sweep.json         # Series selection and plot style
+│       └── method_sweep.yaml         # Series selection and plot style
 ├── guide/
 │   ├── preparation.md                # Environment, data, and checkpoints
 │   └── method_sweep.md               # Protocol, smoke/formal commands, outputs
@@ -178,7 +180,7 @@ research-project/
 │   └── method_sweep/
 │       └── idea_selection/           # Experiment variant
 │           └── run_20261106_120000/  # Separate execution prevents collisions
-│               ├── resolved_config.json
+│               ├── resolved_config.yaml
 │               ├── run_20261106_120000.log
 │               ├── seed_11/
 │               │   ├── results.json
@@ -189,7 +191,7 @@ research-project/
 │                   ├── average_results.md
 │                   └── plots/
 │                       ├── comparison_data.csv
-│                       ├── comparison_config.json
+│                       ├── comparison_config.yaml
 │                       ├── plot_comparison.py
 │                       ├── comparison.png
 │                       └── comparison.pdf

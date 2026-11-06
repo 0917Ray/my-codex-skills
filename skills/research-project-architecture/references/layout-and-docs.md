@@ -18,7 +18,7 @@ project/
 │   │   ├── method_quick.yaml
 │   │   └── method_sweep.yaml
 │   └── visualization/
-│       └── method_sweep.json
+│       └── method_sweep.yaml
 ├── guide/
 │   ├── preparation.md
 │   └── method_sweep.md
@@ -58,7 +58,7 @@ For each significant runnable workflow, provide a discoverable guide section or 
 4. Formal run: exact command and intended configuration. State the working directory for commands.
 5. Configuration: important fields, precedence, units, valid combinations, and whether resources such as workers are per task or global.
 6. Outputs: a compact tree, file meanings, per-task versus aggregate granularity, completion/failure state, and statistical definitions.
-7. Boundaries: known limitations, common errors, and independent replot commands when relevant.
+7. Boundaries: known limitations, common errors, log locations and terminal status conventions, and automatic post-run plotting plus independent replot commands when relevant.
 
 Scale this to the task. A focused guide section is sufficient for a minor variant. Commands must match the implemented CLI; show expected behavior as such until it has been verified.
 
