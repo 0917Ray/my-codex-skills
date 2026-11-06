@@ -58,64 +58,6 @@ It emphasizes a layout proportionate to the project, portable paths, validated c
 
 The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes two focused references and UI metadata; it does not need a helper script.
 
-#### Example project architecture
-
-For a machine-learning study with a baseline, a parameter sweep, and multiple seeds, a typical resulting layout could be:
-
-```text
-research-project/
-├── README.md                         # Project map and shortest startup path
-├── .gitignore
-├── pyproject.toml                    # Dependencies and actual package metadata
-├── configs/
-│   ├── evaluation/
-│   │   ├── baseline.yaml
-│   │   ├── method.yaml               # Standard experiment
-│   │   ├── method_quick.yaml         # Small smoke run, same implementation
-│   │   └── method_sweep.yaml         # Parameter sweep and seeds
-│   └── visualization/
-│       └── method_sweep.json         # Series selection and plot style
-├── guide/
-│   ├── preparation.md                # Environment, data, and checkpoints
-│   └── method_sweep.md               # Protocol, smoke/formal commands, outputs
-├── scripts/
-│   ├── evaluate_method.py            # Shared entrypoint for method configs
-│   └── plot_method_sweep.py          # Replot without rerunning evaluation
-├── src/research_project/             # Shared implementation, when needed
-├── tests/                            # Meaningful implemented checks, when needed
-├── data/                             # Local inputs, normally ignored
-│   ├── downloads/
-│   └── raw/<dataset>/
-├── models/                           # Local checkpoints, normally ignored
-├── runs/                             # Generated outputs, normally ignored
-│   └── method_sweep/
-│       └── idea_selection/           # Experiment variant
-│           └── run_20261106_120000/  # Separate execution prevents collisions
-│               ├── resolved_config.json
-│               ├── run_20261106_120000.log
-│               ├── seed_11/
-│               │   ├── results.json
-│               │   └── results.csv
-│               ├── seed_42/          # Same per-seed result structure
-│               └── summary/         # Completed cross-seed aggregation
-│                   ├── average_results.csv
-│                   ├── average_results.md
-│                   └── plots/
-│                       ├── comparison_data.csv
-│                       ├── comparison_config.json
-│                       ├── plot_comparison.py
-│                       ├── comparison.png
-│                       └── comparison.pdf
-├── Idea/                             # Optional dated hypotheses and plans
-└── conversation_w_GPT/               # Optional implementation/history notes
-```
-
-The sweep follows `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`. Each seed retains its own results; the summary records aggregation and uncertainty definitions. The plot bundle keeps data, config, and runnable plotting code together so a figure can be restyled without repeating evaluation.
-
-This tree is illustrative. A small project can start with a README, one script, its config, and an output directory; add `src/`, `tests/`, or research notes when they have actual content. Smoke runs use separate temporary outputs. Code, configs, guides, and protocol metadata go into Git; large inputs and generated runs normally stay local, and private-note exclusions follow the project's policy.
-
-Example request: “Use $research-project-architecture to organize a baseline and a multi-seed parameter sweep, including smoke-test instructions, result aggregation, and an independent replot bundle.”
-
 ## Examples
 
 Each preview links to the corresponding PDF file.
@@ -202,6 +144,64 @@ The source is [`assets/examples/paper_layout/paper_layout_demo.tex`](assets/exam
 ```bash
 latexmk -pdf paper_layout_demo.tex
 ```
+
+### Research Project Architecture
+
+For a machine-learning study with a baseline, a parameter sweep, and multiple seeds, a typical resulting layout could be:
+
+```text
+research-project/
+├── README.md                         # Project map and shortest startup path
+├── .gitignore
+├── pyproject.toml                    # Dependencies and actual package metadata
+├── configs/
+│   ├── evaluation/
+│   │   ├── baseline.yaml
+│   │   ├── method.yaml               # Standard experiment
+│   │   ├── method_quick.yaml         # Small smoke run, same implementation
+│   │   └── method_sweep.yaml         # Parameter sweep and seeds
+│   └── visualization/
+│       └── method_sweep.json         # Series selection and plot style
+├── guide/
+│   ├── preparation.md                # Environment, data, and checkpoints
+│   └── method_sweep.md               # Protocol, smoke/formal commands, outputs
+├── scripts/
+│   ├── evaluate_method.py            # Shared entrypoint for method configs
+│   └── plot_method_sweep.py          # Replot without rerunning evaluation
+├── src/research_project/             # Shared implementation, when needed
+├── tests/                            # Meaningful implemented checks, when needed
+├── data/                             # Local inputs, normally ignored
+│   ├── downloads/
+│   └── raw/<dataset>/
+├── models/                           # Local checkpoints, normally ignored
+├── runs/                             # Generated outputs, normally ignored
+│   └── method_sweep/
+│       └── idea_selection/           # Experiment variant
+│           └── run_20261106_120000/  # Separate execution prevents collisions
+│               ├── resolved_config.json
+│               ├── run_20261106_120000.log
+│               ├── seed_11/
+│               │   ├── results.json
+│               │   └── results.csv
+│               ├── seed_42/          # Same per-seed result structure
+│               └── summary/         # Completed cross-seed aggregation
+│                   ├── average_results.csv
+│                   ├── average_results.md
+│                   └── plots/
+│                       ├── comparison_data.csv
+│                       ├── comparison_config.json
+│                       ├── plot_comparison.py
+│                       ├── comparison.png
+│                       └── comparison.pdf
+├── Idea/                             # Optional dated hypotheses and plans
+└── conversation_w_GPT/               # Optional implementation/history notes
+```
+
+The sweep follows `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`. Each seed retains its own results; the summary records aggregation and uncertainty definitions. The plot bundle keeps data, config, and runnable plotting code together so a figure can be restyled without repeating evaluation.
+
+This tree is illustrative. A small project can start with a README, one script, its config, and an output directory; add `src/`, `tests/`, or research notes when they have actual content. Smoke runs use separate temporary outputs. Code, configs, guides, and protocol metadata go into Git; large inputs and generated runs normally stay local, and private-note exclusions follow the project's policy.
+
+Example request: “Use $research-project-architecture to organize a baseline and a multi-seed parameter sweep, including smoke-test instructions, result aggregation, and an independent replot bundle.”
 
 ## Installation
 
