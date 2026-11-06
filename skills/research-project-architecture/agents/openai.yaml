@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Project Architecture"
+  short_description: "Organize reproducible research code and experiments"
+  default_prompt: "Use $research-project-architecture to organize this research project with clear code, configuration, guide, asset, and experiment-output boundaries."

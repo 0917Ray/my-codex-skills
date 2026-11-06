@@ -6,7 +6,7 @@
   <a href="README.zh-CN.md"><strong>中文</strong></a>
 </p>
 
-本仓库包含我的自定义 Codex skills，用于绘制风格统一、可配置、适合科研展示的图表，以及阅读英文科研论文。
+本仓库包含我的自定义 Codex skills，用于绘制风格统一、可配置、适合科研展示的图表，阅读英文科研论文，以及组织可复现的科研代码项目。
 
 ## Skills 列表
 
@@ -49,6 +49,14 @@
 它要求关键结论和数字尽可能标注论文中的章节、表格或图号，并区分直接证据、作者推测、合理推断和未报告信息。
 
 完整分析会保存为 `.md` 文件；行内数学使用 `$...$`，独立公式使用 `$$...$$`。后续定向提问默认只在对话中回答，明确要求修订时才更新文件。
+
+### `research-project-architecture`
+
+用于在新建科研 / 机器学习项目、新增实验工作流，以及审查或重构文件架构时安排项目结构，串联复现指南、配置、执行入口、本地资产、实验输出、汇总和可独立重绘的图表。
+
+该 skill 强调按项目规模选择目录层级、统一路径解析、配置校验与临时 CLI 覆盖、运行隔离与增量保存、明确统计口径，以及保存数据 / 配置 / 代码的重绘包。同时区分稳定指南与研究假设，并明确大体积资产和私人笔记的 Git 边界。
+
+内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带两份按需读取的参考文档和界面元数据，不需要辅助脚本。
 
 ## 效果示例
 
@@ -135,15 +143,16 @@ latexmk -pdf paper_layout_demo.tex
 
 ## 安装
 
-可以使用 Codex 内置的 GitHub skill installer 安装全部三个 skills：
+可以使用 Codex 内置的 GitHub skill installer 安装全部四个 skills：
 
 ```bash
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-architecture
 ```
 
 如果只想安装文献阅读 skill，将同一命令的 `--path` 改为 `skills/paper-reading`。
+如果只想安装项目架构 skill，将 `--path` 改为 `skills/research-project-architecture`。
 
 也可以手动复制 skill 文件夹到 Codex 的 skills 目录：
 
@@ -152,11 +161,14 @@ mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
 cp -R skills/paper-reading ~/.codex/skills/
+cp -R skills/research-project-architecture ~/.codex/skills/
 ```
 
 安装后需要重启 Codex 才能识别新 skills。
 
 使用示例：“请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
+
+项目架构示例：“请用 $research-project-architecture 为这个机器学习实验安排项目结构，并实现配置、运行入口、复现指南和结果保存。”
 
 ## 仓库结构
 
@@ -165,7 +177,13 @@ my-codex-skills/
 ├── skills/
 │   ├── plot-training-curves/
 │   ├── plot-bar-charts/
-│   └── paper-reading/
+│   ├── paper-reading/
+│   └── research-project-architecture/
+│       ├── SKILL.md
+│       ├── agents/openai.yaml
+│       └── references/
+│           ├── layout-and-docs.md
+│           └── experiment-contracts.md
 └── assets/
     └── examples/
         ├── bar_charts/
@@ -176,6 +194,6 @@ my-codex-skills/
 
 ## 说明
 
-绘图脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。文献阅读 skill 不附带脚本。
+绘图脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。文献阅读与项目架构 skills 不附带脚本。
 
-这些 skills 既可以作为可运行工具，也可以作为绘图代码模板。每张图都应保留图表就绪数据、可配置绘图脚本与 JSON 参数，以便调整样式时不再重跑分析。指定 `--output figure.png` 时会生成 `figure_data.csv`、`figure_config.json` 和 `figure_plot.py`；在任何工作目录执行 `python figure_plot.py --config figure_config.json` 即可重绘。
+绘图 skills 既可以作为可运行工具，也可以作为绘图代码模板。每张图都应保留图表就绪数据、可配置绘图脚本与 JSON 参数，以便调整样式时不再重跑分析。指定 `--output figure.png` 时会生成 `figure_data.csv`、`figure_config.json` 和 `figure_plot.py`；在任何工作目录执行 `python figure_plot.py --config figure_config.json` 即可重绘。

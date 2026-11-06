@@ -6,7 +6,7 @@
   <a href="README.zh-CN.md"><strong>中文</strong></a>
 </p>
 
-This repository contains my custom Codex skills for creating polished, configurable scientific plots and reading English research papers.
+This repository contains my custom Codex skills for creating polished, configurable scientific plots, reading English research papers, and organizing reproducible research code projects.
 
 ## Skills
 
@@ -49,6 +49,14 @@ Read an attached English research paper and produce an evidence-grounded Chinese
 It requires important claims and numbers to be tied to paper locations when available, and distinguishes direct evidence, author speculation, reasonable inference, and unreported information.
 
 Full analyses are saved as Markdown (`.md`), with `$...$` for inline math and `$$...$$` for display math. Focused follow-up questions do not rewrite the file unless revision is requested.
+
+### `research-project-architecture`
+
+Organize research and machine-learning repositories while scaffolding projects, adding experiments, or reviewing/refactoring file architecture. The skill connects guides, configs, executable entrypoints, local assets, run outputs, summaries, and reproducible plots.
+
+It emphasizes a layout proportionate to the project, portable paths, validated configs and temporary CLI overrides, isolated runs and incremental results, explicit statistical definitions, and independent replot bundles. It also separates stable guides from research hypotheses and defines Git boundaries for large assets and private notes.
+
+The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes two focused references and UI metadata; it does not need a helper script.
 
 ## Examples
 
@@ -139,15 +147,16 @@ latexmk -pdf paper_layout_demo.tex
 
 ## Installation
 
-Install all three skills with Codex's GitHub skill installer:
+Install all four skills with Codex's GitHub skill installer:
 
 ```bash
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-architecture
 ```
 
 To install only the paper-reading skill, use `--path skills/paper-reading` in the same command.
+To install only the project-architecture skill, use `--path skills/research-project-architecture`.
 
 Or manually copy the skill folders to your Codex skills directory:
 
@@ -156,11 +165,14 @@ mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
 cp -R skills/paper-reading ~/.codex/skills/
+cp -R skills/research-project-architecture ~/.codex/skills/
 ```
 
 Restart Codex after installation.
 
 Example request: “请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
+
+Architecture example: “请用 $research-project-architecture 为这个机器学习实验安排项目结构，并实现配置、运行入口、复现指南和结果保存。”
 
 ## Repository Layout
 
@@ -169,7 +181,13 @@ my-codex-skills/
 ├── skills/
 │   ├── plot-training-curves/
 │   ├── plot-bar-charts/
-│   └── paper-reading/
+│   ├── paper-reading/
+│   └── research-project-architecture/
+│       ├── SKILL.md
+│       ├── agents/openai.yaml
+│       └── references/
+│           ├── layout-and-docs.md
+│           └── experiment-contracts.md
 └── assets/
     └── examples/
         ├── bar_charts/
@@ -180,6 +198,6 @@ my-codex-skills/
 
 ## Notes
 
-The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading skill does not include a script.
+The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading and research-project-architecture skills do not include scripts.
 
-These skills are intended both as runnable tools and as plotting-code templates. Each plotted result should retain chart-ready data, a configurable plot script, and JSON settings so style adjustments do not rerun the analysis. A typical bundle from `--output figure.png` contains `figure_data.csv`, `figure_config.json`, and `figure_plot.py`; redraw with `python figure_plot.py --config figure_config.json` from any working directory.
+The plotting skills are intended both as runnable tools and as plotting-code templates. Each plotted result should retain chart-ready data, a configurable plot script, and JSON settings so style adjustments do not rerun the analysis. A typical bundle from `--output figure.png` contains `figure_data.csv`, `figure_config.json`, and `figure_plot.py`; redraw with `python figure_plot.py --config figure_config.json` from any working directory.
