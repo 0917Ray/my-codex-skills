@@ -10,6 +10,7 @@ The tree shows possible responsibilities, not directories to create in advance. 
 project/
 ├── README.md
 ├── .gitignore
+├── environment.yaml        # Conda environment declaration
 ├── <dependency declaration / lockfile>
 ├── configs/
 │   ├── evaluation/          # Or training/, analysis/, etc., by consumer
@@ -50,24 +51,16 @@ Name entrypoints with an action and object, and align guide/config/output names 
 
 The README should let a newcomer find the project goal, environment setup, input preparation, first small run, formal workflows, and major directories quickly. Include protocol constraints and a baseline result only when actually known; identify its setting and source. Link detailed explanations instead of duplicating them.
 
-For each significant runnable workflow, provide a discoverable guide section or dedicated guide. A useful order is:
+For each significant runnable workflow, provide a discoverable guide section or dedicated guide. Read [step-by-step-guides.md](step-by-step-guides.md) before writing or revising one. Teach the ordered commands from Conda setup and input preparation through smoke/formal execution, config selection, results, and independent replotting. Each step needs context and a success check; a parameter list alone is insufficient.
 
-1. Purpose and protocol: what is measured, input/output scope, baseline definition, and important assumptions.
-2. Prerequisites: environment, data, checkpoints, devices, and preparation links.
-3. Smoke test: bounded input, seeds/devices/workers as appropriate, separate temporary output, expected files or success signals. Mark reduced-input metrics as unsuitable for formal reporting.
-4. Formal run: exact command and intended configuration. State the working directory for commands.
-5. Configuration: important fields, precedence, units, valid combinations, and whether resources such as workers are per task or global.
-6. Outputs: a compact tree, file meanings, per-task versus aggregate granularity, completion/failure state, and statistical definitions.
-7. Boundaries: known limitations, common errors, log locations and terminal status conventions, and automatic post-run plotting plus independent replot commands when relevant.
-
-Scale this to the task. A focused guide section is sufficient for a minor variant. Commands must match the implemented CLI; show expected behavior as such until it has been verified.
+Scale this to the task. A focused guide section with a shared preparation link is sufficient for a minor variant. Commands must match the implemented CLI; show expected behavior as such until it has been verified.
 
 ## Input preparation and environment
 
 - Record the dataset/model source, version or revision where available, acquisition method, expected local path, and verification method. State optional inputs explicitly rather than reporting their absence as a failed setup.
 - Keep archives separate from consumable data when archives are retained. Check archive contents before extraction or correcting an extra root directory; avoid destructive bulk rearrangement.
 - Preserve upstream class IDs or directory names. Version small label maps, class names, split definitions, and other metadata that affect experimental semantics. Distinguish directory-label maps from text/prompt names when they differ.
-- Declare dependencies using the project's established tooling. Pin research implementations to a release or commit when reproduction depends on them. Document hardware-dependent installation separately where needed; do not force one CUDA build on every machine.
+- Use Conda exclusively for environment management and keep dependency declarations consistent with it. Pip-only packages may be installed with `python -m pip` inside the named Conda environment. Pin research implementations to a release or commit when reproduction depends on them. Document hardware-dependent installation separately where needed; do not force one CUDA build on every machine.
 - Use concrete integrity checks where available, such as checksums, expected class counts, schema checks, or a small loader/visual inspection. A folder's existence alone is not a data check.
 
 ## Research knowledge

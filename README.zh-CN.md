@@ -50,9 +50,9 @@
 
 完整分析会保存为 `.md` 文件；行内数学使用 `$...$`，独立公式使用 `$$...$$`。后续定向提问默认只在对话中回答，明确要求修订时才更新文件。
 
-### `research-project-architecture`
+### `research-project-workflow`
 
-用于在新建科研 / 机器学习项目、新增实验工作流，以及审查或重构文件架构时安排项目结构，串联复现指南、配置、执行入口、本地资产、实验输出、汇总和可独立重绘的图表。
+用于组织科研 / 机器学习项目的文件、代码实现约定、实验执行流程和逐步命令指南，串联 Conda 环境、数据准备、YAML 配置、执行入口、实验输出、汇总和可独立重绘的图表。
 
 该 skill 强调按项目规模选择目录层级、统一路径解析、配置校验与临时 CLI 覆盖、运行隔离与增量保存、明确统计口径，以及保存数据 / 配置 / 代码的重绘包。同时区分稳定指南与研究假设，并明确大体积资产和私人笔记的 Git 边界。
 
@@ -60,7 +60,9 @@
 
 一次实验调用可按 YAML 中的 `seeds` 列表依次运行多个随机种子，分别保存结果，最后以 Markdown、JSON、CSV 同时记录全部单次结果与跨 seed 统计。
 
-内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带两份按需读取的参考文档和界面元数据，不需要辅助脚本。
+环境创建和管理只使用 Conda；仅支持 pip 的依赖可在已激活的项目 Conda 环境中通过 `python -m pip` 安装。guide 必须逐步教出环境验证、数据与权重准备、小规模验证、正式实验、切换 YAML 配置、受支持的 CLI 覆盖、结果查看和独立重绘的具体命令，每一步说明工作目录、前置条件和成功检查。
+
+内容提炼自真实项目的架构审查，适配已有约定，不强制创建空目录或复制特定算法参数。skill 附带三份按需读取的参考文档和界面元数据，不需要辅助脚本。
 
 ## 效果示例
 
@@ -145,7 +147,7 @@
 latexmk -pdf paper_layout_demo.tex
 ```
 
-### 项目架构示例
+### 科研项目工作流示例
 
 以一个包含基线、参数扫描和多个随机种子的机器学习研究项目为例，依照该 skill 可以组织成：
 
@@ -153,6 +155,7 @@ latexmk -pdf paper_layout_demo.tex
 research-project/
 ├── README.md                         # 项目地图与最短启动路径
 ├── .gitignore
+├── environment.yaml                 # Conda 环境与依赖
 ├── pyproject.toml                    # 依赖与实际存在的包信息
 ├── configs/
 │   ├── evaluation/
@@ -214,7 +217,16 @@ output_dir: runs/method_sweep
 
 这个目录树用于示意。小项目可以从 README、一个脚本、一份配置和一个输出目录开始，`src/`、`tests/` 与研究笔记按实际内容添加。小规模验证使用独立临时输出；代码、配置、指南和协议元数据进入 Git，大体积输入与运行产物通常留在本地，私人笔记的忽略方式由项目约定决定。
 
-调用示例：“请用 $research-project-architecture 组织一个包含基线和多 seed 参数扫描的研究项目，提供小规模验证说明、结果汇总，以及可独立重绘的图表产物包。”
+生成的工作流 guide 应按以下顺序教学，每一步提供适配实际项目的可运行命令和成功检查：
+
+1. 进入项目根目录，创建、激活并验证 Conda 环境。
+2. 下载或手动获取数据集与权重，解压 / 整理并校验最终结构。
+3. 将小规模验证输出到独立临时目录，检查能否正常执行。
+4. 分别给出基线、标准实验和扫描配置的实际运行命令，说明如何修改 YAML 及使用受支持的 CLI 覆盖。
+5. 查看各 seed 结果及 Markdown、JSON、CSV 格式的跨 seed 统计。
+6. 找到自动生成的图表，修改绘图配置，并用独立命令重新绘制。
+
+调用示例：“请用 $research-project-workflow 组织一个包含基线和多 seed 参数扫描的研究项目，提供小规模验证说明、结果汇总，以及可独立重绘的图表产物包。”
 
 ## 安装
 
@@ -223,11 +235,11 @@ output_dir: runs/method_sweep
 ```bash
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-architecture
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-workflow
 ```
 
 如果只想安装文献阅读 skill，将同一命令的 `--path` 改为 `skills/paper-reading`。
-如果只想安装项目架构 skill，将 `--path` 改为 `skills/research-project-architecture`。
+如果只想安装科研工作流 skill，将 `--path` 改为 `skills/research-project-workflow`。
 
 也可以手动复制 skill 文件夹到 Codex 的 skills 目录：
 
@@ -236,14 +248,14 @@ mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
 cp -R skills/paper-reading ~/.codex/skills/
-cp -R skills/research-project-architecture ~/.codex/skills/
+cp -R skills/research-project-workflow ~/.codex/skills/
 ```
 
 安装后需要重启 Codex 才能识别新 skills。
 
 使用示例：“请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
 
-项目架构示例：“请用 $research-project-architecture 为这个机器学习实验安排项目结构，并实现配置、运行入口、复现指南和结果保存。”
+工作流示例：“请用 $research-project-workflow 安排这个机器学习项目的文件和实验代码，并编写从 Conda 环境、数据准备到切换配置运行的逐步命令指南。”
 
 ## 仓库结构
 
@@ -253,12 +265,13 @@ my-codex-skills/
 │   ├── plot-training-curves/
 │   ├── plot-bar-charts/
 │   ├── paper-reading/
-│   └── research-project-architecture/
+│   └── research-project-workflow/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
 │       └── references/
 │           ├── layout-and-docs.md
-│           └── experiment-contracts.md
+│           ├── experiment-contracts.md
+│           └── step-by-step-guides.md
 └── assets/
     └── examples/
         ├── bar_charts/
@@ -269,6 +282,6 @@ my-codex-skills/
 
 ## 说明
 
-绘图脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。文献阅读与项目架构 skills 不附带脚本。
+绘图脚本需要 Python 环境中安装 `matplotlib` 和 `numpy`。文献阅读与科研工作流 skills 不附带脚本。
 
 绘图 skills 既可以作为可运行工具，也可以作为绘图代码模板。每张图都应保留图表就绪数据、可配置绘图脚本与 JSON 参数，以便调整样式时不再重跑分析。指定 `--output figure.png` 时会生成 `figure_data.csv`、`figure_config.json` 和 `figure_plot.py`；在任何工作目录执行 `python figure_plot.py --config figure_config.json` 即可重绘。

@@ -1,15 +1,15 @@
 ---
-name: research-project-architecture
-description: Organize research and machine-learning code projects into traceable workflows linking guides, configs, execution entrypoints, local assets, experiment results, and reproducible plots. Use when scaffolding a research repository, adding experiment workflows, or reviewing/refactoring its file architecture. For routine code edits, preserve the existing structure without initiating a repository-wide reorganization.
+name: research-project-workflow
+description: Build reproducible research and machine-learning project workflows covering file organization, coding conventions, YAML configs, sequential multi-seed experiments, result exports, plotting, and step-by-step command-line guides with Conda environments. Use when creating or extending research code, documenting how to prepare and run experiments, or reviewing/refactoring these workflows. For focused edits, apply relevant conventions without reorganizing the whole repository.
 ---
 
-# Research Project Architecture
+# Research Project Workflow
 
-Use this skill to arrange files while implementing research code, or to review an existing research repository. The goal is a complete reproducible workflow, not a large directory tree.
+Use this skill to organize research files, implement consistent experiment code, and write command-by-command reproduction guides. The deliverable is a runnable, documented workflow with traceable inputs and results.
 
 ## Scope and scale
 
-- Follow the user's chosen stack, layout, and existing repository conventions. The directory names below are defaults for research projects, not requirements for every software project.
+- Follow the user's chosen stack, layout, and existing repository conventions. The directory names below are defaults for research projects, not requirements for every software project. Use Conda exclusively to create and manage Python environments; see the environment rule below.
 - For a new project, create only the layers its first runnable workflow needs. For an added experiment, extend its guide, config, entrypoint, and output contract together. For an architecture review, report evidence and recommendations; change files only when implementation or refactoring is requested.
 - Keep a small one-off script small. Do not create empty `src/`, `tests/`, research-note directories, fictitious CLI entrypoints, or a framework merely to resemble a template.
 - On an existing project, inspect tracked files and relevant local/ignored assets as well as documentation. Inspect paths, sizes, and representative metadata rather than loading datasets or weights. Distinguish current working-tree state from committed or remote state.
@@ -23,10 +23,17 @@ Use this skill to arrange files while implementing research code, or to review a
 
    A guide may cover related configurations, and several configurations may share one implementation. Align names semantically rather than duplicating code to force one file per experiment.
 3. **Implement the file contracts.** Read [references/experiment-contracts.md](references/experiment-contracts.md) when adding configuration, experiment execution, aggregation, or plotting. Resolve paths consistently, isolate runs, record resolved settings, and make outputs reflect the experiment units.
-4. **Keep documentation and Git boundaries consistent.** Update affected commands, imports, config paths, packaging declarations, README links, guide examples, and ignore rules together. Reuse established dependency tooling. Keep substantial data, weights, generated runs, caches, and private notes outside ordinary Git by default; preserve deliberate release artifacts and existing data-versioning arrangements.
-5. **Verify the changed chain.** Use checks appropriate to the implementation: entrypoint/import checks, config validation, a bounded smoke run when inputs are available, output inspection, and independent replotting when plots were added. Check references and ignore behavior. Report missing assets, unavailable hardware, and checks not run explicitly; do not present an unexecuted command as verified.
+4. **Write the runnable guide.** Read [references/step-by-step-guides.md](references/step-by-step-guides.md) whenever creating or updating setup/run instructions. Give ordered commands for Conda setup, data/checkpoint preparation, validation, smoke runs, formal runs with each relevant config, CLI overrides, and independent replotting. Each step explains its purpose, prerequisites, working directory/environment, and observable success check. Link shared preparation instructions rather than duplicating them.
+5. **Keep documentation and Git boundaries consistent.** Update affected commands, imports, config paths, packaging declarations, README links, guide examples, and ignore rules together. Reuse dependency declarations within the Conda environment. Keep substantial data, weights, generated runs, caches, and private notes outside ordinary Git by default; preserve deliberate release artifacts and existing data-versioning arrangements.
+6. **Verify the changed chain.** Use checks appropriate to the implementation: entrypoint/import checks, config validation, a bounded smoke run when inputs are available, output inspection, and independent replotting when plots were added. Check guide commands against the actual CLI and inspect references and ignore behavior. Report missing assets, unavailable hardware, and checks not run explicitly; do not present an unexecuted command as verified.
 
-## Core architecture rules
+## Project workflow rules
+
+### Use Conda and teach the workflow step by step
+
+- Create and manage Python environments only with Conda. Prefer a maintained `environment.yaml` for new projects, or document `conda create` with a justified Python version and explicit activation. Do not offer `venv`, virtualenv, Poetry/uv-managed environments, or system-Python installation as alternative setup paths. If Conda is unavailable, state that prerequisite and provide appropriate installation guidance; do not silently substitute another manager.
+- Install dependencies into the named Conda environment. Packages unavailable through suitable Conda channels may use `python -m pip` inside that environment; this does not create a second environment. Never install project packages into `base` or system Python. Keep existing dependency declarations consistent rather than inventing a new incompatible source of versions.
+- Guides must teach the exact command sequence, not just describe what users should do. Start with environment setup and input preparation, then demonstrate small validation, formal execution, different YAML configs, supported CLI overrides, sequential seeds, output inspection, and independent redraw where relevant. Do not invent flags, scripts, download URLs, or successful results. Detailed requirements and adaptable examples are in [references/step-by-step-guides.md](references/step-by-step-guides.md).
 
 ### Separate stable instructions from implementation and assets
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Project Workflow"
+  short_description: "Build research code, experiments, and step-by-step guides"
+  default_prompt: "Use $research-project-workflow to organize this research code and its experiments, with Conda setup and step-by-step commands for data preparation, config selection, running, and replotting."

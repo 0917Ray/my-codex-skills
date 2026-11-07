@@ -50,9 +50,9 @@ It requires important claims and numbers to be tied to paper locations when avai
 
 Full analyses are saved as Markdown (`.md`), with `$...$` for inline math and `$$...$$` for display math. Focused follow-up questions do not rewrite the file unless revision is requested.
 
-### `research-project-architecture`
+### `research-project-workflow`
 
-Organize research and machine-learning repositories while scaffolding projects, adding experiments, or reviewing/refactoring file architecture. The skill connects guides, configs, executable entrypoints, local assets, run outputs, summaries, and reproducible plots.
+Build reproducible research and machine-learning workflows covering project layout, coding conventions, experiment execution, and command-by-command guides. The skill connects Conda setup, data preparation, YAML configs, executable entrypoints, run outputs, summaries, and reproducible plots.
 
 It emphasizes a layout proportionate to the project, portable paths, validated configs and temporary CLI overrides, isolated runs and incremental results, explicit statistical definitions, and independent replot bundles. It also separates stable guides from research hypotheses and defines Git boundaries for large assets and private notes.
 
@@ -60,7 +60,9 @@ New configs preferably use `.yaml`. Training progress uses `tqdm` when suitable,
 
 A single experiment invocation can run an ordered YAML `seeds` list sequentially, save each seed independently, then export all individual results and cross-seed statistics in Markdown, JSON, and CSV.
 
-The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes two focused references and UI metadata; it does not need a helper script.
+Guides use Conda exclusively for Python environment management; pip-only dependencies may be installed with `python -m pip` inside the named Conda environment. Each guide teaches ordered commands for environment verification, datasets/checkpoints, smoke tests, formal experiments, different YAML configurations and supported CLI overrides, result inspection, and independent redraw. Each step states its working directory, prerequisites, and success check.
+
+The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes three focused references and UI metadata; it does not need a helper script.
 
 ## Examples
 
@@ -149,7 +151,7 @@ The source is [`assets/examples/paper_layout/paper_layout_demo.tex`](assets/exam
 latexmk -pdf paper_layout_demo.tex
 ```
 
-### Research Project Architecture
+### Research Project Workflow
 
 For a machine-learning study with a baseline, a parameter sweep, and multiple seeds, a typical resulting layout could be:
 
@@ -157,6 +159,7 @@ For a machine-learning study with a baseline, a parameter sweep, and multiple se
 research-project/
 ├── README.md                         # Project map and shortest startup path
 ├── .gitignore
+├── environment.yaml                 # Conda environment and dependencies
 ├── pyproject.toml                    # Dependencies and actual package metadata
 ├── configs/
 │   ├── evaluation/
@@ -218,7 +221,16 @@ The sweep follows `guide/method_sweep.md → configs/evaluation/method_sweep.yam
 
 This tree is illustrative. A small project can start with a README, one script, its config, and an output directory; add `src/`, `tests/`, or research notes when they have actual content. Smoke runs use separate temporary outputs. Code, configs, guides, and protocol metadata go into Git; large inputs and generated runs normally stay local, and private-note exclusions follow the project's policy.
 
-Example request: “Use $research-project-architecture to organize a baseline and a multi-seed parameter sweep, including smoke-test instructions, result aggregation, and an independent replot bundle.”
+A generated workflow guide should teach this sequence, with runnable project-specific commands and a success check at each step:
+
+1. Enter the project root; create, activate, and verify the Conda environment.
+2. Download or manually acquire each dataset/checkpoint, extract/prepare it, and verify its final layout.
+3. Run an inexpensive smoke test with separate temporary output.
+4. Run baseline, standard, and sweep configurations through their actual CLI commands; explain YAML edits and supported overrides.
+5. Inspect per-seed results and cross-seed statistics in Markdown, JSON, and CSV.
+6. Find the automatically generated plots, change plot config values, and run the standalone redraw command.
+
+Example request: “Use $research-project-workflow to organize a baseline and a multi-seed parameter sweep, including smoke-test instructions, result aggregation, and an independent replot bundle.”
 
 ## Installation
 
@@ -227,11 +239,11 @@ Install all four skills with Codex's GitHub skill installer:
 ```bash
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo 0917Ray/my-codex-skills \
-  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-architecture
+  --path skills/plot-training-curves skills/plot-bar-charts skills/paper-reading skills/research-project-workflow
 ```
 
 To install only the paper-reading skill, use `--path skills/paper-reading` in the same command.
-To install only the project-architecture skill, use `--path skills/research-project-architecture`.
+To install only the research-workflow skill, use `--path skills/research-project-workflow`.
 
 Or manually copy the skill folders to your Codex skills directory:
 
@@ -240,14 +252,14 @@ mkdir -p ~/.codex/skills
 cp -R skills/plot-training-curves ~/.codex/skills/
 cp -R skills/plot-bar-charts ~/.codex/skills/
 cp -R skills/paper-reading ~/.codex/skills/
-cp -R skills/research-project-architecture ~/.codex/skills/
+cp -R skills/research-project-workflow ~/.codex/skills/
 ```
 
 Restart Codex after installation.
 
 Example request: “请用 $paper-reading 阅读附件论文，按 STAR 结构解释方法，并核查实验是否支持结论。”
 
-Architecture example: “请用 $research-project-architecture 为这个机器学习实验安排项目结构，并实现配置、运行入口、复现指南和结果保存。”
+Workflow example: “请用 $research-project-workflow 安排这个机器学习项目的文件和实验代码，并编写从 Conda 环境、数据准备到切换配置运行的逐步命令指南。”
 
 ## Repository Layout
 
@@ -257,12 +269,13 @@ my-codex-skills/
 │   ├── plot-training-curves/
 │   ├── plot-bar-charts/
 │   ├── paper-reading/
-│   └── research-project-architecture/
+│   └── research-project-workflow/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
 │       └── references/
 │           ├── layout-and-docs.md
-│           └── experiment-contracts.md
+│           ├── experiment-contracts.md
+│           └── step-by-step-guides.md
 └── assets/
     └── examples/
         ├── bar_charts/
@@ -273,6 +286,6 @@ my-codex-skills/
 
 ## Notes
 
-The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading and research-project-architecture skills do not include scripts.
+The bundled plotting scripts require a Python environment with `matplotlib` and `numpy`. The paper-reading and research-project-workflow skills do not include scripts.
 
 The plotting skills are intended both as runnable tools and as plotting-code templates. Each plotted result should retain chart-ready data, a configurable plot script, and JSON settings so style adjustments do not rerun the analysis. A typical bundle from `--output figure.png` contains `figure_data.csv`, `figure_config.json`, and `figure_plot.py`; redraw with `python figure_plot.py --config figure_config.json` from any working directory.
