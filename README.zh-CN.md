@@ -161,7 +161,6 @@ research-project/
 │   ├── evaluation/
 │   │   ├── baseline.yaml
 │   │   ├── method.yaml               # 标准实验
-│   │   ├── method_quick.yaml         # 小规模验证，复用同一实现
 │   │   └── method_sweep.yaml         # 参数扫描与随机种子
 │   └── visualization/
 │       └── method_sweep.yaml         # 展示哪些系列、使用什么图表样式
@@ -171,6 +170,10 @@ research-project/
 ├── scripts/
 │   ├── evaluate_method.py            # 多份 method 配置共用的执行入口
 │   └── plot_method_sweep.py          # 无需重跑评测即可重新绘图
+├── smoke_test/                       # 与 guide、data、runs 同级的验证目录
+│   ├── method_quick.yaml             # 复用正式入口的小规模验证配置
+│   └── outputs/                      # 生成的日志、结果、图表，通常不进入 Git
+│       └── method_sweep/<run_id>/
 ├── src/research_project/             # 有共享实现需求时再引入
 ├── tests/                            # 有实际、有效的检查时再创建
 ├── data/                             # 本地输入，通常不进入 Git
@@ -215,13 +218,13 @@ output_dir: runs/method_sweep
 
 参数扫描的文件链是 `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`。各 seed 单独保存结果，汇总时明确聚合方式和不确定性的统计口径；图表目录保留数据、配置与可运行的绘图代码，调整图表样式时无需重复评测。
 
-这个目录树用于示意。小项目可以从 README、一个脚本、一份配置和一个输出目录开始，`src/`、`tests/` 与研究笔记按实际内容添加。小规模验证使用独立临时输出；代码、配置、指南和协议元数据进入 Git，大体积输入与运行产物通常留在本地，私人笔记的忽略方式由项目约定决定。
+这个目录树用于示意。小项目可以从 README、一个脚本、一份配置和一个输出目录开始，`src/`、`tests/` 与研究笔记按实际内容添加。小规模验证专用配置、辅助脚本与产物统一保存在根目录的 `smoke_test/`，与 `guide/`、`data/`、`runs/` 同级；生成产物放入 `smoke_test/outputs/<workflow>/<run_id>/`，可复用配置和辅助脚本进入 Git，生成产物通常忽略；代码、配置、指南和协议元数据进入 Git，大体积输入与运行产物通常留在本地，私人笔记的忽略方式由项目约定决定。
 
 生成的工作流 guide 应按以下顺序教学，每一步提供适配实际项目的可运行命令和成功检查：
 
 1. 进入项目根目录，创建、激活并验证 Conda 环境。
 2. 下载或手动获取数据集与权重，解压 / 整理并校验最终结构。
-3. 将小规模验证输出到独立临时目录，检查能否正常执行。
+3. 使用根目录的 `smoke_test/` 进行小规模验证，将产物输出到其中独立的 `outputs/<workflow>/<run_id>/`。
 4. 分别给出基线、标准实验和扫描配置的实际运行命令，说明如何修改 YAML 及使用受支持的 CLI 覆盖。
 5. 查看各 seed 结果及 Markdown、JSON、CSV 格式的跨 seed 统计。
 6. 找到自动生成的图表，修改绘图配置，并用独立命令重新绘制。

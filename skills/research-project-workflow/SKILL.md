@@ -42,6 +42,12 @@ Use this skill to organize research files, implement consistent experiment code,
 - `scripts/` contains clearly named executable entrypoints such as `evaluate_<method>.py` or `plot_<experiment>.py`. A few self-contained scripts are reasonable; extract shared code into an actual package when reuse or complexity warrants it.
 - Keep input data, checkpoints, run outputs, untested ideas, and process notes distinct from executable code and stable guides. Preserve upstream dataset identifiers and version the mappings that interpret them.
 
+### Keep smoke tests in a dedicated top-level directory
+
+- Store smoke-test-specific configs, helper scripts when needed, and generated artifacts under `<project_root>/smoke_test/`, a sibling of `guide/`, `data/`, and `runs/`. Do not nest this directory inside another directory or use `/tmp` for smoke-test outputs. Create it when a smoke test is implemented or run.
+- Reuse production entrypoints and implementation; a dedicated smoke helper may call them without duplicating training/evaluation logic. A smoke config can live at `smoke_test/method_quick.yaml`, with logs, results, checkpoints, and plots under `smoke_test/outputs/<workflow>/<run_id>/`. Resolve paths from the project root even if the shell starts elsewhere.
+- Keep smoke artifacts separate from formal `runs/` and cross-seed summaries. Version reusable smoke configs/helpers; normally ignore generated `smoke_test/outputs/` without ignoring the entire smoke-test directory. Update guide commands, config paths, and output inspection examples to follow this layout.
+
 ### Make experiment intent visible and portable
 
 - Use one documented path base for project configuration, normally the repository root. Do not depend on whichever shell directory happened to launch the command. A movable plot bundle instead resolves paths relative to its saved config.

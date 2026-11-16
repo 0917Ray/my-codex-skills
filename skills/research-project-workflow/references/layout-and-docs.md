@@ -4,7 +4,7 @@ Read when choosing directory responsibilities, deciding between scripts and a pa
 
 ## Adaptable research layout
 
-The tree shows possible responsibilities, not directories to create in advance. Reuse equivalent existing names such as `docs/`, `checkpoints/`, or `outputs/`.
+The tree shows possible responsibilities, not directories to create in advance. Reuse equivalent existing names such as `docs/`, `checkpoints/`, or `outputs/`, except that smoke tests use the explicitly named top-level `smoke_test/` directory when present.
 
 ```text
 project/
@@ -16,7 +16,6 @@ project/
 │   ├── evaluation/          # Or training/, analysis/, etc., by consumer
 │   │   ├── baseline.yaml
 │   │   ├── method.yaml
-│   │   ├── method_quick.yaml
 │   │   └── method_sweep.yaml
 │   └── visualization/
 │       └── method_sweep.yaml
@@ -26,6 +25,10 @@ project/
 ├── scripts/
 │   ├── evaluate_method.py
 │   └── plot_method_sweep.py
+├── smoke_test/             # Sibling of guide/, data/, and runs/
+│   ├── method_quick.yaml   # Smoke-specific config, tracked
+│   └── outputs/            # Generated smoke artifacts, normally ignored
+│       └── <workflow>/<run_id>/
 ├── src/<package>/          # Only if shared/package code exists
 ├── tests/                 # Only with meaningful implemented checks
 ├── data/                  # Local inputs, normally ignored
@@ -46,6 +49,8 @@ A small number of scripts can contain the working implementation. Extract config
 Do not declare a console command whose target module does not exist. After packaging changes, check the actual import or installed command using the project's normal environment. Do not treat an empty `src/` or `tests/` directory as implemented functionality.
 
 Name entrypoints with an action and object, and align guide/config/output names around the same workflow. A quick run and formal run should generally use the same implementation with different configuration rather than independently evolving demo code.
+
+Place smoke-specific configs and any dedicated helpers in root-level `smoke_test/`; shared production code stays in its existing entrypoint/package. Put generated smoke logs/results/checkpoints/plots under `smoke_test/outputs/<workflow>/<run_id>/`. Do not place `smoke_test/` inside `tests/`, `scripts/`, `runs/`, or any other directory. Keep formal experiment artifacts in `runs/`.
 
 ## README and guide responsibilities
 
@@ -74,6 +79,8 @@ These directories and names are optional conventions. Private notes may stay loc
 ## Git boundaries
 
 Ordinary Git should retain the reproducible skeleton: code, configs, guides, dependency declarations, and small protocol metadata. Large datasets, archives, checkpoints, generated runs, environments, and caches are normally excluded. Existing DVC/LFS, artifact storage, or curated published results can justify a different boundary.
+
+Track reusable `smoke_test/` configs/helpers and normally ignore `/smoke_test/outputs/`. A blanket `smoke_test/` ignore would also hide the reproducible test setup, so exclude generated artifacts specifically.
 
 Use `.gitignore` for shared exclusions and `.git/info/exclude` for clone-local preferences. Do not assume a local rule will protect another clone. Do not overwrite existing rules or ignore small required metadata under a broad asset pattern.
 

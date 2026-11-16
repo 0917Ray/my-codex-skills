@@ -85,7 +85,7 @@ Define what happens if an output already exists: choose a fresh execution direct
 
 For long runs, persist each completed task and its status; use atomic replacement for refreshed result files where practical. Keep incomplete data readable and label failures/partial execution. Publish a final summary only after its required task set is complete, or clearly name and mark a requested partial summary. A completion flag or manifest can make this explicit; the directory's existence cannot.
 
-Use a separate temporary output for smoke tests, such as a fresh `/tmp/<project>-smoke-<id>/` or an equivalent platform path. Small-run metrics validate execution and output shape, not formal accuracy.
+Store smoke-test configs/helpers and artifacts in `<project_root>/smoke_test/`, alongside `guide/`, `data/`, and `runs/`. Use a fresh `smoke_test/outputs/<workflow>/<run_id>/` for each execution, including its resolved config, logs, results, generated checkpoints, and plots. Smoke configs such as `smoke_test/method_quick.yaml` and supported CLI overrides must route all these writers to that output root; a logger or automatic plotting step must not fall back to formal `runs/` or `/tmp`. Reuse production implementation, keep smoke metrics out of formal aggregation, and normally ignore only generated `smoke_test/outputs/` while tracking reusable configs/helpers. Small-run metrics validate execution and output shape, not formal accuracy.
 
 ## Result records and aggregation
 
@@ -127,7 +127,7 @@ plots/
 - Save the effective plotting config, including series selection, labels, style, input path, and output formats. Resolve bundle paths relative to this config so moving the bundle or changing shell directory does not break it.
 - Save runnable plotting code and any project-local helpers it requires, or make the script standalone. State external dependency/version requirements when material; copying a script that imports unavailable private project modules is not independent replotting.
 - Snapshot code/config/data for this execution so later default or source-code changes do not redefine an old figure. Do not embed chart values only in plotting calls.
-- Verify by redrawing from saved data/config into a separate temporary destination, ideally from another working directory. If independence is uncertain, copy the bundle to a temporary location and check it there. This should not access the dataset, model, original training log, or expensive evaluation.
+- Verify by redrawing from saved data/config into a separate check destination under project-root `smoke_test/outputs/`, ideally from another working directory. If independence is uncertain, copy the bundle to a fresh location there and check it without access to the original project helpers. This should not access the dataset, model, original training log, or expensive evaluation.
 
 ## Focused verification
 

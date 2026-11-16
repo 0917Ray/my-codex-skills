@@ -53,7 +53,9 @@ Give equivalent source/download/location/verification instructions for checkpoin
 
 ## 4. Verify the installation and run a smoke test
 
-First show the actual entrypoint's help/import/config validation check where available. Then give a bounded small-run command with limited samples/steps, few workers/devices, and a temporary output distinct from formal results. State the specific config/overrides that reduce cost and how to recognize completion.
+First show the actual entrypoint's help/import/config validation check where available. Then give a bounded small-run command with limited samples/steps and few workers/devices. Store smoke-specific configs/helpers in project-root `smoke_test/` and route all generated artifacts to a fresh `smoke_test/outputs/<workflow>/<run_id>/`. This directory is a sibling of `guide/`, `data/`, and `runs/`, never nested inside another directory. State the specific config/overrides that reduce cost and how to recognize completion; use actual supported arguments, not an invented output flag.
+
+Show how to invoke the shared production entrypoint with a config such as `smoke_test/method_quick.yaml` when implemented. Explain that relative config/output paths resolve against the project root, and show the actual smoke log/result/checkpoint/plot paths rather than `/tmp` or formal `runs/` paths. Any dedicated smoke helper also belongs under `smoke_test/`; keep stable reproduction instructions in `guide/`.
 
 Identify expected logs and result files and give inspection commands appropriate to the actual format. Warn next to the command that reduced-input metrics are execution checks, not formal reported results. A small run and the full run should share the same implementation.
 

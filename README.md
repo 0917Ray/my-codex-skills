@@ -165,7 +165,6 @@ research-project/
 │   ├── evaluation/
 │   │   ├── baseline.yaml
 │   │   ├── method.yaml               # Standard experiment
-│   │   ├── method_quick.yaml         # Small smoke run, same implementation
 │   │   └── method_sweep.yaml         # Parameter sweep and seeds
 │   └── visualization/
 │       └── method_sweep.yaml         # Series selection and plot style
@@ -175,6 +174,10 @@ research-project/
 ├── scripts/
 │   ├── evaluate_method.py            # Shared entrypoint for method configs
 │   └── plot_method_sweep.py          # Replot without rerunning evaluation
+├── smoke_test/                       # Top-level smoke-test workspace
+│   ├── method_quick.yaml             # Smoke config using the shared entrypoint
+│   └── outputs/                      # Generated logs/results/plots, normally ignored
+│       └── method_sweep/<run_id>/
 ├── src/research_project/             # Shared implementation, when needed
 ├── tests/                            # Meaningful implemented checks, when needed
 ├── data/                             # Local inputs, normally ignored
@@ -219,13 +222,13 @@ output_dir: runs/method_sweep
 
 The sweep follows `guide/method_sweep.md → configs/evaluation/method_sweep.yaml → scripts/evaluate_method.py → runs/method_sweep/...`. Each seed retains its own results; the summary records aggregation and uncertainty definitions. The plot bundle keeps data, config, and runnable plotting code together so a figure can be restyled without repeating evaluation.
 
-This tree is illustrative. A small project can start with a README, one script, its config, and an output directory; add `src/`, `tests/`, or research notes when they have actual content. Smoke runs use separate temporary outputs. Code, configs, guides, and protocol metadata go into Git; large inputs and generated runs normally stay local, and private-note exclusions follow the project's policy.
+This tree is illustrative. A small project can start with a README, one script, its config, and an output directory; add `src/`, `tests/`, or research notes when they have actual content. Smoke-specific configs/helpers and artifacts live in top-level `smoke_test/`, alongside `guide/`, `data/`, and `runs/`; generated artifacts go under `smoke_test/outputs/<workflow>/<run_id>/`. Reusable smoke configs/helpers are tracked, while generated outputs are normally ignored. Code, configs, guides, and protocol metadata go into Git; large inputs and generated runs normally stay local, and private-note exclusions follow the project's policy.
 
 A generated workflow guide should teach this sequence, with runnable project-specific commands and a success check at each step:
 
 1. Enter the project root; create, activate, and verify the Conda environment.
 2. Download or manually acquire each dataset/checkpoint, extract/prepare it, and verify its final layout.
-3. Run an inexpensive smoke test with separate temporary output.
+3. Run an inexpensive smoke test using `smoke_test/`, with artifacts in its own `outputs/<workflow>/<run_id>/` directory.
 4. Run baseline, standard, and sweep configurations through their actual CLI commands; explain YAML edits and supported overrides.
 5. Inspect per-seed results and cross-seed statistics in Markdown, JSON, and CSV.
 6. Find the automatically generated plots, change plot config values, and run the standalone redraw command.
