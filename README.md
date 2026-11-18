@@ -60,6 +60,8 @@ New configs preferably use `.yaml`. Training progress uses `tqdm` when suitable,
 
 A single experiment invocation can run an ordered YAML `seeds` list sequentially, save each seed independently, then export all individual results and cross-seed statistics in Markdown, JSON, and CSV.
 
+For ablations, each parameter combination is an independent task. Prefer one concurrent task per assigned GPU and queue the remaining combinations; seeds run sequentially within each combination. If one task requires or strongly benefits from multiple GPUs, run only that task across its GPU group, wait for completion, then execute the next combination until all are finished.
+
 Guides use Conda exclusively for Python environment management; pip-only dependencies may be installed with `python -m pip` inside the named Conda environment. Each guide teaches ordered commands for environment verification, datasets/checkpoints, smoke tests, formal experiments, different YAML configurations and supported CLI overrides, result inspection, and independent redraw. Each step states its working directory, prerequisites, and success check.
 
 The guidance is distilled from a real project architecture review. It adapts to existing conventions without requiring empty directories or copying algorithm-specific settings. The skill includes three focused references and UI metadata; it does not need a helper script.

@@ -81,6 +81,8 @@ Show how to edit relevant YAML fields and how to use supported one-off CLI overr
 
 For multi-seed experiments, show the actual YAML seed list, the single command that runs it in order, and the per-seed and final summary paths. Explain independent initialization and the mean/std definition, expected/completed seed counts, partial-failure behavior, and `.md`/`.json`/`.csv` exports. Show existing resume/aggregation-only commands only when supported.
 
+For ablations, explain that each parameter combination is one independent task. Show the actual config fields and run command for device selection and the implemented scheduling mode. Default to one task per assigned GPU when each task is suitable for one GPU, queuing additional combinations; seeds remain sequential within each combination. If one task requires or strongly benefits from multiple GPUs, explain the reason, provide the supported distributed command, and state that only one combination runs at a time on that GPU group until it finishes, followed by the next combination. Describe task/device log messages, isolated task/seed output paths, and failure handling. Do not invent launcher flags or promise distributed support absent from the code.
+
 ## 6. Inspect results and redraw figures
 
 Show the actual output hierarchy and commands to inspect at least one machine-readable result, the Markdown summary, and the run log. Explain run/variant/seed identity, sample scope, metrics/units, and aggregation. Include the meaning of progress/status messages and how to find non-actionable warnings in the file log. Distinguish incomplete runs from completed results.
